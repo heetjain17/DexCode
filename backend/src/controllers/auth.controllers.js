@@ -441,21 +441,30 @@ const googleOAuthCallback = async (req, res, next) => {
       user.id
     );
 
+    // res
+    //   .cookie('accessToken', accessToken, cookieOptions)
+    //   .cookie('refreshToken', refreshToken, cookieOptions)
+    //   .status(200)
+    //   .json(
+    //     new ApiSuccess(200, 'User Logged in successfully', {
+    //       email: user.email,
+    //       name: user.name,
+    //       role: user.role,
+    //       id: user.id,
+    //       provider: user.provider,
+    //     })
+    //   );
+
+    
     res
       .cookie('accessToken', accessToken, cookieOptions)
       .cookie('refreshToken', refreshToken, cookieOptions)
-      .status(200)
-      .json(
-        new ApiSuccess(200, 'User Logged in successfully', {
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          id: user.id,
-          provider: user.provider,
-        })
-      );
+
+    res.redirect('http://localhost:5173/?login=success');
+    
   } catch (error) {
     console.error('Google OAuth callback failed: ', error);
+    res.redirect('http://localhost:5173/login?error=oauth_failed');
     next(new ApiError(500, 'Google OAuth callback failed: ', error));
   }
 };
@@ -540,21 +549,28 @@ const githubOAuthCallback = async (req, res, next) => {
       user.id
     );
 
+    // res
+    //   .cookie('accessToken', accessToken, cookieOptions)
+    //   .cookie('refreshToken', refreshToken, cookieOptions)
+    //   .status(200)
+    //   .json(
+    //     new ApiSuccess(200, 'User Logged in successfully', {
+    //       email: user.email,
+    //       name: user.name,
+    //       role: user.role,
+    //       id: user.id,
+    //       provider: user.provider,
+    //     })
+    //   );
+
     res
       .cookie('accessToken', accessToken, cookieOptions)
       .cookie('refreshToken', refreshToken, cookieOptions)
-      .status(200)
-      .json(
-        new ApiSuccess(200, 'User Logged in successfully', {
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          id: user.id,
-          provider: user.provider,
-        })
-      );
+    
+    res.redirect('http://localhost:5173/?login=success');
   } catch (error) {
     console.error('Github OAuth callback failed: ', error);
+    res.redirect('http://localhost:5173/login?error=oauth_failed');
     next(new ApiError(500, 'Github OAuth callback failed: ', error));
   }
 };
