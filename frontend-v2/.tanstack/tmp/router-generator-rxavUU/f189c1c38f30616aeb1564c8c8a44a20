@@ -9,15 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as ProblemsRouteImport } from './routes/Problems'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProblemsPidRouteImport } from './routes/problems.$pid'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
-import { Route as appProblemsIndexRouteImport } from './routes/(app)/problems/index'
-import { Route as appProblemsProblemSlugRouteImport } from './routes/(app)/problems/$problemSlug'
 
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProblemsRoute = ProblemsRouteImport.update({
+  id: '/Problems',
+  path: '/Problems',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProblemsPidRoute = ProblemsPidRouteImport.update({
+  id: '/problems/$pid',
+  path: '/problems/$pid',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authSignupRoute = authSignupRouteImport.update({
@@ -30,68 +46,90 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const appProblemsIndexRoute = appProblemsIndexRouteImport.update({
-  id: '/(app)/problems/',
-  path: '/problems/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const appProblemsProblemSlugRoute = appProblemsProblemSlugRouteImport.update({
-  id: '/(app)/problems/$problemSlug',
-  path: '/problems/$problemSlug',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/Problems': typeof ProblemsRoute
+  '/about': typeof AboutRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
-  '/problems/$problemSlug': typeof appProblemsProblemSlugRoute
-  '/problems': typeof appProblemsIndexRoute
+  '/problems/$pid': typeof ProblemsPidRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/Problems': typeof ProblemsRoute
+  '/about': typeof AboutRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
-  '/problems/$problemSlug': typeof appProblemsProblemSlugRoute
-  '/problems': typeof appProblemsIndexRoute
+  '/problems/$pid': typeof ProblemsPidRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/Problems': typeof ProblemsRoute
+  '/about': typeof AboutRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
-  '/(app)/problems/$problemSlug': typeof appProblemsProblemSlugRoute
-  '/(app)/problems/': typeof appProblemsIndexRoute
+  '/problems/$pid': typeof ProblemsPidRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/problems/$problemSlug' | '/problems'
+  fullPaths:
+    | '/'
+    | '/Problems'
+    | '/about'
+    | '/login'
+    | '/signup'
+    | '/problems/$pid'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/problems/$problemSlug' | '/problems'
+  to: '/' | '/Problems' | '/about' | '/login' | '/signup' | '/problems/$pid'
   id:
     | '__root__'
     | '/'
+    | '/Problems'
+    | '/about'
     | '/(auth)/login'
     | '/(auth)/signup'
-    | '/(app)/problems/$problemSlug'
-    | '/(app)/problems/'
+    | '/problems/$pid'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ProblemsRoute: typeof ProblemsRoute
+  AboutRoute: typeof AboutRoute
   authLoginRoute: typeof authLoginRoute
   authSignupRoute: typeof authSignupRoute
-  appProblemsProblemSlugRoute: typeof appProblemsProblemSlugRoute
-  appProblemsIndexRoute: typeof appProblemsIndexRoute
+  ProblemsPidRoute: typeof ProblemsPidRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Problems': {
+      id: '/Problems'
+      path: '/Problems'
+      fullPath: '/Problems'
+      preLoaderRoute: typeof ProblemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/problems/$pid': {
+      id: '/problems/$pid'
+      path: '/problems/$pid'
+      fullPath: '/problems/$pid'
+      preLoaderRoute: typeof ProblemsPidRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/signup': {
@@ -108,29 +146,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(app)/problems/': {
-      id: '/(app)/problems/'
-      path: '/problems'
-      fullPath: '/problems'
-      preLoaderRoute: typeof appProblemsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(app)/problems/$problemSlug': {
-      id: '/(app)/problems/$problemSlug'
-      path: '/problems/$problemSlug'
-      fullPath: '/problems/$problemSlug'
-      preLoaderRoute: typeof appProblemsProblemSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ProblemsRoute: ProblemsRoute,
+  AboutRoute: AboutRoute,
   authLoginRoute: authLoginRoute,
   authSignupRoute: authSignupRoute,
-  appProblemsProblemSlugRoute: appProblemsProblemSlugRoute,
-  appProblemsIndexRoute: appProblemsIndexRoute,
+  ProblemsPidRoute: ProblemsPidRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

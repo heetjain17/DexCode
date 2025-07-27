@@ -38,10 +38,10 @@ function RootComponent() {
   }, []);
 
   return (
-    <React.Fragment>
+    <div className="bg-neutral-950 text-foreground min-h-screen font-family-sans">
       <Outlet />
       <Toaster position="top-center" richColors />
       <TanStackRouterDevtools />
-    </React.Fragment>
+    </div>
   );
 }
