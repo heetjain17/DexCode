@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as appProblemsIndexRouteImport } from './routes/(app)/problems/index'
@@ -18,6 +19,11 @@ import { Route as appProblemsProblemSlugRouteImport } from './routes/(app)/probl
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authSignupRoute = authSignupRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/problems/$problemSlug': typeof appProblemsProblemSlugRoute
   '/problems': typeof appProblemsIndexRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/problems/$problemSlug': typeof appProblemsProblemSlugRoute
   '/problems': typeof appProblemsIndexRoute
 }
@@ -60,19 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/(app)/problems/$problemSlug': typeof appProblemsProblemSlugRoute
   '/(app)/problems/': typeof appProblemsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/problems/$problemSlug' | '/problems'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/auth/callback'
+    | '/problems/$problemSlug'
+    | '/problems'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/problems/$problemSlug' | '/problems'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/auth/callback'
+    | '/problems/$problemSlug'
+    | '/problems'
   id:
     | '__root__'
     | '/'
     | '/(auth)/login'
     | '/(auth)/signup'
+    | '/auth/callback'
     | '/(app)/problems/$problemSlug'
     | '/(app)/problems/'
   fileRoutesById: FileRoutesById
@@ -81,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authLoginRoute: typeof authLoginRoute
   authSignupRoute: typeof authSignupRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   appProblemsProblemSlugRoute: typeof appProblemsProblemSlugRoute
   appProblemsIndexRoute: typeof appProblemsIndexRoute
 }
@@ -92,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/signup': {
@@ -129,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authLoginRoute: authLoginRoute,
   authSignupRoute: authSignupRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   appProblemsProblemSlugRoute: appProblemsProblemSlugRoute,
   appProblemsIndexRoute: appProblemsIndexRoute,
 }

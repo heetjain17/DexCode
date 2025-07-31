@@ -15,9 +15,9 @@ problemRoutes
   .route('/create-problem')
   .post(isLoggedIn, checkAdmin, createProblem);
 
-problemRoutes.route('/get-all-problems').get(isLoggedIn, getAllProblems);
+problemRoutes.route('/get-all-problems').get(getAllProblems);
 
-problemRoutes.route('/get-problem/:id').get(isLoggedIn, getProblemsById);
+problemRoutes.route('/get-problem/:id').get(getProblemsById);
 
 problemRoutes
   .route('/update-problem/:id')

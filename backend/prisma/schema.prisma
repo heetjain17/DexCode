@@ -61,7 +61,7 @@ model Problem {
   tags        String[]
   userId      String
   examples    Json
-  constraints String
+  constraints Json?
   hints       String?
   editorial   String?
 

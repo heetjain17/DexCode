@@ -455,13 +455,11 @@ const googleOAuthCallback = async (req, res, next) => {
     //     })
     //   );
 
-    
     res
       .cookie('accessToken', accessToken, cookieOptions)
-      .cookie('refreshToken', refreshToken, cookieOptions)
+      .cookie('refreshToken', refreshToken, cookieOptions);
 
-    res.redirect('http://localhost:5173/?login=success');
-    
+    res.redirect('http://localhost:5173/auth/callback');
   } catch (error) {
     console.error('Google OAuth callback failed: ', error);
     res.redirect('http://localhost:5173/login?error=oauth_failed');
@@ -565,9 +563,9 @@ const githubOAuthCallback = async (req, res, next) => {
 
     res
       .cookie('accessToken', accessToken, cookieOptions)
-      .cookie('refreshToken', refreshToken, cookieOptions)
-    
-    res.redirect('http://localhost:5173/?login=success');
+      .cookie('refreshToken', refreshToken, cookieOptions);
+
+    res.redirect('http://localhost:5173/auth/callback');
   } catch (error) {
     console.error('Github OAuth callback failed: ', error);
     res.redirect('http://localhost:5173/login?error=oauth_failed');

@@ -22,12 +22,15 @@ const getAllSubmissions = async (req, res, next) => {
 const getAllSubmissionForProblem = async (req, res, next) => {
   const userId = req.user.id;
   const problemId = req.params.problemId;
-  
+
   try {
     const submission = await db.submission.findMany({
       where: {
         userId: userId,
         problemId: problemId,
+      },
+      orderBy: {
+        createdAt: 'desc', // Sort by creation date, descending (latest first)
       },
     });
 

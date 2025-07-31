@@ -3,7 +3,7 @@ import { InfiniteMovingCards } from '../ui/infinite-moving-cards';
 
 export function BrandLogos() {
   return (
-    <div className="pt-10 text-center">
+    <div className="pt-20 text-center">
       <h2 className="text-3xl md:text-4xl font-bold text-white">
         Trusted by Developers at Top Companies
       </h2>

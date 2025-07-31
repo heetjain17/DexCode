@@ -1,47 +1,28 @@
 import { Toaster } from '@/components/ui/sonner';
-import { checkAuth } from '@/lib/api/authQueries';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useQuery } from '@tanstack/react-query';
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
+import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import React, { useEffect } from 'react';
-import { toast } from 'sonner';
+import React from 'react';
 
 export const Route = createRootRoute({
-  component: RootComponent
+  component: RootComponent,
+  errorComponent: ErrorFallback
 });
+
 function RootComponent() {
-  const { setAuthUser } = useAuthStore();
-
-  useQuery({
-    queryKey: ['authUser'],
-    queryFn: checkAuth,
-    onSuccess: user => {
-      if (user) {
-        setAuthUser(user);
-      }
-    },
-    onError: () => {
-      setAuthUser(null);
-    },
-    retry: false,
-    staleTime: Infinity
-  });
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-
-    if (urlParams.get('login') === 'success') {
-      toast.success('Login successfull');
-      window.history.replaceState({}, document.title, '/');
-    }
-  }, []);
-
   return (
     <div className="bg-neutral-950 text-foreground min-h-screen font-family-sans">
       <Outlet />
       <Toaster position="top-center" richColors />
-      <TanStackRouterDevtools />
+      {/* <TanStackRouterDevtools /> */}
+    </div>
+  );
+}
+
+function ErrorFallback({ error }) {
+  return (
+    <div className="text-red-500 p-4">
+      <h2>Something went wrong</h2>
+      <pre>{error.message}</pre>
     </div>
   );
 }

@@ -86,15 +86,16 @@ const createProblem = async (req, res, next) => {
 
 const getAllProblems = async (req, res, next) => {
   try {
-    const problems = await db.problem.findMany({
-      include: {
-        solvedBy:  {
-          where: {
-            userId: req.user.id
-          }
-        }
-      }
-    });
+    // const problems = await db.problem.findMany({
+    //   include: {
+    //     solvedBy:  {
+    //       where: {
+    //         userId: req.user.id
+    //       }
+    //     }
+    //   }
+    // });
+    const problems = await db.problem.findMany();
 
     if (problems.length === 0) {
       return next(new ApiError(403, 'Problems not found'));
