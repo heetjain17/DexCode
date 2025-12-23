@@ -144,6 +144,7 @@ exports.Prisma.ProblemScalarFieldEnum = {
   description: 'description',
   difficulty: 'difficulty',
   tags: 'tags',
+  companies: 'companies',
   userId: 'userId',
   examples: 'examples',
   constraints: 'constraints',
@@ -220,11 +221,6 @@ exports.Prisma.SortOrder = {
 };
 
 exports.Prisma.JsonNullValueInput = {
-  JsonNull: Prisma.JsonNull
-};
-
-exports.Prisma.NullableJsonNullValueInput = {
-  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 

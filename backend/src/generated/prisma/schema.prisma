@@ -59,10 +59,11 @@ model Problem {
   description String
   difficulty  Difficulty
   tags        String[]
+  companies   String[]
   userId      String
   examples    Json
-  constraints Json?
-  hints       String?
+  constraints Json
+  hints       String[]
   editorial   String?
 
   testcases          Json

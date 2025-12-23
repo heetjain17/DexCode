@@ -1,9 +1,0 @@
-{
-  "execMap": {
-    "js": "node --loader @esbuild-kit/esm-loader"
-  },
-  "ext": "js,jsx,json",
-  "ignore": ["node_modules/"],
-  "watch": ["src/"],
-  "exec": "vite"
-}

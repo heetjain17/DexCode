@@ -5,7 +5,7 @@ dotenv.config();
 
 export const getJudge0LanguageId = (language) => {
   const languageMap = {
-    PYHTON: 71,
+    PYTHON: 71,
     JAVA: 62,
     JAVASCRIPT: 63,
   };

@@ -15,6 +15,7 @@ const createProblem = async (req, res, next) => {
     description,
     difficulty,
     tags,
+    companies,
     examples,
     constraints,
     testcases,
@@ -34,7 +35,6 @@ const createProblem = async (req, res, next) => {
         source_code: solutionCode,
         language_id: languageId,
         stdin: input,
-        expected_output: output,
       }));
 
       // contains token for each set of {input, output}
@@ -49,35 +49,50 @@ const createProblem = async (req, res, next) => {
       // checking whether each testcase is cleared
       for (let i = 0; i < results.length; i++) {
         const result = results[i];
-        if (result.status.id !== 3) {
+        const actualOutput = result.stdout?.trim();
+        const expectedOutput = testcases[i].output?.trim();
+
+        // First, check for compilation or runtime errors.
+        if (result.status.id > 3) {
+          // Status 3 is "Accepted", anything higher is an error.
           return next(
             new ApiError(
               400,
-              `Testcase ${i + 1} failed for language ${language}`
+              `Testcase ${i + 1} failed for language ${language} with status: ${result.status.description}. Error: ${result.stderr || result.compile_output}`
+            )
+          );
+        }
+
+        // Now, perform the robust comparison. This is the key change.
+        if (actualOutput !== expectedOutput) {
+          return next(
+            new ApiError(
+              400,
+              `Testcase ${i + 1} failed for language ${language}. Expected: "${expectedOutput}", Got: "${actualOutput}"`
             )
           );
         }
       }
-
-      const newProblem = await db.problem.create({
-        data: {
-          title,
-          description,
-          difficulty,
-          tags,
-          examples,
-          constraints,
-          testcases,
-          codeSnippets,
-          referenceSolutions,
-          userId: req.user.id,
-        },
-      });
-
-      return res
-        .status(201)
-        .json(new ApiSuccess(201, 'Problem created successfully', newProblem));
     }
+    const newProblem = await db.problem.create({
+      data: {
+        title,
+        description,
+        difficulty,
+        tags,
+        companies,
+        examples,
+        constraints,
+        testcases,
+        codeSnippets,
+        referenceSolutions,
+        userId: req.user.id,
+      },
+    });
+
+    return res
+      .status(201)
+      .json(new ApiSuccess(201, 'Problem created successfully', newProblem));
   } catch (error) {
     console.error('Error creating problem:', error);
     next(new ApiError(500, 'Error creating problem', error));

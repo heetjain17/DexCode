@@ -19,6 +19,9 @@ const executeAndVerify = async (source_code, language_id, testcases) => {
   const stdin = testcases.map((tc) => tc.input);
   const expected_outputs = testcases.map((tc) => tc.output);
 
+  console.log(stdin);
+  console.log(expected_outputs);
+
   const submissions = stdin.map((input) => ({
     source_code,
     language_id: language_id,
@@ -63,11 +66,13 @@ const runCode = async (req, res, next) => {
       return next(new ApiError(404, 'Problem not found'));
     }
 
+    const compilerTestcases = problem.examples.map((ex) => ex.compiler);
+
     // Use the 'examples' field from the problem for the run action
     const { detailedResults, allPassed } = await executeAndVerify(
       source_code,
       language_id,
-      problem.examples
+      compilerTestcases
     );
 
     // Return the preview results without saving anything
