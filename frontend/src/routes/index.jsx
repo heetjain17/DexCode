@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import FeaturesSection from '@/components/landing page/FeatureCard';
-import { Hero } from '@/components/landing page/Hero';
-import Navbar from '@/components/landing page/Navbar';
-import Constellation from '@/components/landing page/Constellation';
-import { BrandLogos } from '@/components/landing page/brandLogos';
-import { Reviews } from '@/components/landing page/Reviews';
-import Footer from '@/components/landing page/Footer';
+import FeaturesSection from '@/components/landing_page/FeatureCard';
+import { Hero } from '@/components/landing_page/Hero';
+import Navbar from '@/components/landing_page/Navbar';
+import Constellation from '@/components/landing_page/Constellation';
+import { BrandLogos } from '@/components/landing_page/BrandLogos';
+import { Reviews } from '@/components/landing_page/Reviews';
+import Footer from '@/components/landing_page/Footer';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';

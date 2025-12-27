@@ -1,5 +1,5 @@
 import { ApiError, ApiSuccess } from '../utils/apiError.js';
-import { db } from '../libs/db.js';
+import { db } from '../libs/db.ts';
 
 const createPlayList = async (req, res, next) => {
   const { name, description } = req.body;
@@ -79,7 +79,7 @@ const getPlayListDetails = async (req, res, next) => {
 const addProblemToPlaylist = async (req, res, next) => {
   const { playlistId } = req.params;
   const { problemIds } = req.body;
-  
+
   try {
     if (!Array.isArray(problemIds) || problemIds.length === 0) {
       return next(new ApiError(404, 'Invalid or missing problems'));

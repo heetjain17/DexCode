@@ -1,4 +1,4 @@
-import { db } from '../libs/db.js';
+import { db } from '../libs/db.ts';
 import {
   getLanguageName,
   pollBatchResults,

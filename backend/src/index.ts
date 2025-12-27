@@ -8,10 +8,13 @@ import problemRoutes from './routes/problem.routes.js';
 import executionRoutes from './routes/executeCode.routes.js';
 import submissionRoutes from './routes/submission.routes.js';
 import playlistRoutes from './routes/playlist.routes.js';
+import { db } from './libs/db.ts';
+
+import type { Request, Response, NextFunction } from 'express';
 
 dotenv.config();
 const app = express();
-
+const PORT = process.env.PORT;
 app.use(
   cors({
     origin: 'http://localhost:5173',
@@ -21,8 +24,11 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.get('/', () => {
-  console.log(`Hello Welcome to DexCode 🔪🩸`);
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: `DexCode is running 🔪🩸`,
+  });
 });
 
 app.use('/api/v1/auth', authRoutes);
@@ -32,7 +38,12 @@ app.use('/api/v1/submission', submissionRoutes);
 app.use('/api/v1/playlist', playlistRoutes);
 
 // Global error handler middleware
-app.use((err, req, res, next) => {
+interface CustomError extends Error {
+  statusCode?: number;
+  errors?: unknown[];
+}
+
+app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   const statusCode = err.statusCode || 500;
 
   res.status(statusCode).json({
@@ -43,6 +54,17 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on 8080`);
-});
+async function startServer() {
+  try {
+    await db.$connect();
+    console.log('✅ Database connected');
+    app.listen(PORT, () => {
+      console.log(`Server is up & running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.log('Failed to start server', error);
+    process.exit(1);
+  }
+}
+
+startServer();

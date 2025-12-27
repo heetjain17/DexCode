@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { db } from '../libs/db.js';
+import { db } from '../libs/db.ts';
 import dotenv from 'dotenv';
 
 dotenv.config();

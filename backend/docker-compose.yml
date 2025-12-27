@@ -1,26 +1,55 @@
-version: '3.8'
+version: "3.9"
 
 services:
   postgres:
-    image: postgres:15-alpine
-    container_name: postgres
+    image: postgres:16-alpine
+    container_name: judge0-postgres
     environment:
-      POSTGRES_USER: haaland
-      POSTGRES_PASSWORD: manchesterCity # NO EMPTY PASSWORDS
-      POSTGRES_DB: postgres
-      POSTGRES_INITDB_ARGS: '--auth-host=md5' # Critical for password auth
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - '5433:5432' # Using non-standard port
+      - "5432:5432"
     volumes:
-      - type: volume
-        source: pg_data
-        target: /var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U haaland']
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    container_name: judge0-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+
+  judge0:
+    image: judge0/judge0:1.13.1
+    container_name: judge0-api
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "2358:8080"
+    environment:
+      JUDGE0_HOST: ${JUDGE0_HOST}
+
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+
+      JUDGE0_POSTGRES_HOST: postgres
+      JUDGE0_POSTGRES_PORT: 5432
+      JUDGE0_POSTGRES_DB: ${POSTGRES_DB}
+      JUDGE0_POSTGRES_USER: ${POSTGRES_USER}
+      JUDGE0_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+      JUDGE0_REDIS_HOST: redis
+      JUDGE0_REDIS_PORT: 6379
+      JUDGE0_REDIS_PASSWORD: ${REDIS_PASSWORD}
+
 volumes:
   pg_data:
-    driver: local

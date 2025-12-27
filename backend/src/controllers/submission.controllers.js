@@ -1,4 +1,4 @@
-import { db } from '../libs/db.js';
+import { db } from '../libs/db.ts';
 import { ApiError, ApiSuccess } from '../utils/apiError.js';
 
 const getAllSubmissions = async (req, res, next) => {

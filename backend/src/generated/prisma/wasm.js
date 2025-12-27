@@ -127,13 +127,36 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   role: 'role',
   password: 'password',
-  provider: 'provider',
-  isEmailVerified: 'isEmailVerified',
-  emailVerificationToken: 'emailVerificationToken',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
   emailVerificationExpiry: 'emailVerificationExpiry',
-  refreshToken: 'refreshToken',
-  forgotPasswordToken: 'forgotPasswordToken',
+  emailVerificationToken: 'emailVerificationToken',
   forgotPasswordExpiry: 'forgotPasswordExpiry',
+  forgotPasswordToken: 'forgotPasswordToken',
+  isEmailVerified: 'isEmailVerified',
+  refreshToken: 'refreshToken',
+  provider: 'provider'
+};
+
+exports.Prisma.ProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  username: 'username',
+  displayName: 'displayName',
+  avatarUrl: 'avatarUrl',
+  bio: 'bio',
+  location: 'location',
+  website: 'website',
+  socialLinks: 'socialLinks',
+  problemsSolved: 'problemsSolved',
+  easySolved: 'easySolved',
+  mediumSolved: 'mediumSolved',
+  hardSolved: 'hardSolved',
+  currentStreak: 'currentStreak',
+  longestStreak: 'longestStreak',
+  lastSolvedAt: 'lastSolvedAt',
+  totalSubmissions: 'totalSubmissions',
+  acceptedSubmissions: 'acceptedSubmissions',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -144,17 +167,17 @@ exports.Prisma.ProblemScalarFieldEnum = {
   description: 'description',
   difficulty: 'difficulty',
   tags: 'tags',
-  companies: 'companies',
   userId: 'userId',
   examples: 'examples',
-  constraints: 'constraints',
-  hints: 'hints',
   editorial: 'editorial',
   testcases: 'testcases',
   codeSnippets: 'codeSnippets',
   referenceSolutions: 'referenceSolutions',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  constraints: 'constraints',
+  companies: 'companies',
+  hints: 'hints'
 };
 
 exports.Prisma.SubmissionScalarFieldEnum = {
@@ -215,9 +238,75 @@ exports.Prisma.ProblemInPlaylistScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.Ar_internal_metadataScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ClientsScalarFieldEnum = {
+  id: 'id'
+};
+
+exports.Prisma.LanguagesScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  compile_cmd: 'compile_cmd',
+  run_cmd: 'run_cmd',
+  source_file: 'source_file',
+  is_archived: 'is_archived'
+};
+
+exports.Prisma.Schema_migrationsScalarFieldEnum = {
+  version: 'version'
+};
+
+exports.Prisma.SubmissionsScalarFieldEnum = {
+  id: 'id',
+  source_code: 'source_code',
+  language_id: 'language_id',
+  stdin: 'stdin',
+  expected_output: 'expected_output',
+  stdout: 'stdout',
+  status_id: 'status_id',
+  created_at: 'created_at',
+  finished_at: 'finished_at',
+  time: 'time',
+  memory: 'memory',
+  stderr: 'stderr',
+  token: 'token',
+  number_of_runs: 'number_of_runs',
+  cpu_time_limit: 'cpu_time_limit',
+  cpu_extra_time: 'cpu_extra_time',
+  wall_time_limit: 'wall_time_limit',
+  memory_limit: 'memory_limit',
+  stack_limit: 'stack_limit',
+  max_processes_and_or_threads: 'max_processes_and_or_threads',
+  enable_per_process_and_thread_time_limit: 'enable_per_process_and_thread_time_limit',
+  enable_per_process_and_thread_memory_limit: 'enable_per_process_and_thread_memory_limit',
+  max_file_size: 'max_file_size',
+  compile_output: 'compile_output',
+  exit_code: 'exit_code',
+  exit_signal: 'exit_signal',
+  message: 'message',
+  wall_time: 'wall_time',
+  compiler_options: 'compiler_options',
+  command_line_arguments: 'command_line_arguments',
+  redirect_stderr_to_stdout: 'redirect_stderr_to_stdout',
+  callback_url: 'callback_url',
+  additional_files: 'additional_files',
+  enable_network: 'enable_network'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.JsonNullValueInput = {
@@ -252,12 +341,18 @@ exports.Difficulty = exports.$Enums.Difficulty = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Profile: 'Profile',
   Problem: 'Problem',
   Submission: 'Submission',
   TestCaseResult: 'TestCaseResult',
   ProblemSolved: 'ProblemSolved',
   Playlist: 'Playlist',
-  ProblemInPlaylist: 'ProblemInPlaylist'
+  ProblemInPlaylist: 'ProblemInPlaylist',
+  ar_internal_metadata: 'ar_internal_metadata',
+  clients: 'clients',
+  languages: 'languages',
+  schema_migrations: 'schema_migrations',
+  submissions: 'submissions'
 };
 
 /**

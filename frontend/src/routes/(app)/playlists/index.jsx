@@ -1,4 +1,4 @@
-import Navbar2 from '@/components/landing page/Navbar';
+import Navbar2 from '@/components/landing_page/Navbar';
 import PlaylistListPage from '@/components/playlists_list/PlaylistListPage';
 import PlaylistListPage2 from '@/components/playlists_list/PlaylistListPage2';
 import { createFileRoute } from '@tanstack/react-router';

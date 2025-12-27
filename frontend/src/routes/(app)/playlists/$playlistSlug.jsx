@@ -1,4 +1,4 @@
-import Navbar2 from '@/components/landing page/Navbar';
+import Navbar2 from '@/components/landing_page/Navbar';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/(app)/playlists/$playlistSlug')({
