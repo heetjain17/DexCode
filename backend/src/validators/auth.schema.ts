@@ -1,82 +1,31 @@
-import { body } from 'express-validator';
+import z from 'zod';
 
-const registerUserValidator = () => {
-  return [
-    body('email')
-      .normalizeEmail()
-      .notEmpty()
-      .withMessage('Email is required')
-      .isEmail()
-      .withMessage('Please enter a valid email address')
-      .isLength({ max: 255 })
-      .withMessage('Email must be less than 255 characters'),
-    body('name')
-      .trim()
-      .escape()
-      .isLength({ min: 3 })
-      .withMessage('Username must be at least 3 characters')
-      .isLength({ max: 30 })
-      .withMessage('Username must be less than 30 characters')
-      .matches(/^[a-zA-Z0-9_]+$/)
-      .withMessage(
-        'Username can only contain letters, numbers, and underscores'
-      ),
-    body('password')
-      .notEmpty()
-      .withMessage('Password is required')
-      .isLength({ min: 8 })
-      .withMessage('Password must be at least 8 characters long')
-      .isLength({ max: 128 })
-      .withMessage('Password must be less than 128 characters')
-      .matches(/[a-z]/)
-      .withMessage('Password must contain atleast one lowercase letter')
-      .matches(/[A-Z]/)
-      .withMessage('Password must contain atleast one uppercase letter')
-      .matches(/[0-9]/)
-      .withMessage('Password must contain atleast one number')
-      .matches(/[^a-zA-Z0-9]/)
-      .withMessage('Password must contain atleast one special character'),
-  ];
-};
+export const registerSchema = z.object({
+  email: z
+    .string()
+    .email('Please enter a valid email address')
+    .max(255, 'Email must be less than 255 characters'),
 
-const updateProfileValidator = () => {
-  return [
-    body('name')
-      .trim()
-      .escape()
-      .isLength({ min: 3 })
-      .withMessage('Username must be at least 3 characters')
-      .isLength({ max: 30 })
-      .withMessage('Username must be less than 30 characters')
-      .matches(/^[a-zA-Z0-9_]+$/)
-      .withMessage(
-        'Username can only contain letters, numbers, and underscores'
-      ),
-  ];
-};
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username must be less than 30 characters')
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      'Username can only contain letters, numbers, and underscores'
+    ),
 
-const forgotPasswordValidator = () => {
-  return [
-    body('newPassword')
-      .notEmpty()
-      .withMessage('Password is required')
-      .isLength({ min: 8 })
-      .withMessage('Password must be at least 8 characters long')
-      .isLength({ max: 128 })
-      .withMessage('Password must be less than 128 characters')
-      .matches(/[a-z]/)
-      .withMessage('Password must contain atleast one lowercase letter')
-      .matches(/[A-Z]/)
-      .withMessage('Password must contain atleast one uppercase letter')
-      .matches(/[0-9]/)
-      .withMessage('Password must contain atleast one number')
-      .matches(/[^a-zA-Z0-9]/)
-      .withMessage('Password must contain atleast one special character'),
-  ];
-};
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters long')
+    .max(128, 'Password must be less than 128 characters')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(
+      /[^a-zA-Z0-9]/,
+      'Password must contain at least one special character'
+    ),
+});
 
-export {
-  registerUserValidator,
-  forgotPasswordValidator,
-  updateProfileValidator,
-};
+export type RegisterDto = z.infer<typeof registerSchema>;

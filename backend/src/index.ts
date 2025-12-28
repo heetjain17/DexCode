@@ -3,14 +3,13 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-import authRoutes from './routes/auth.routes.js';
-import problemRoutes from './routes/problem.routes.js';
-import executionRoutes from './routes/executeCode.routes.js';
-import submissionRoutes from './routes/submission.routes.js';
-import playlistRoutes from './routes/playlist.routes.js';
-import { db } from './libs/db.ts';
-
-import type { Request, Response, NextFunction } from 'express';
+import authRoutes from './routes/auth.routes';
+// import problemRoutes from './routes/problem.routes';
+// import executionRoutes from './routes/executeCode.routes';
+// import submissionRoutes from './routes/submission.routes';
+// import playlistRoutes from './routes/playlist.routes';
+import { db } from './libs/db';
+import { errorMiddleware } from './middleware/error.middleware';
 
 dotenv.config();
 const app = express();
@@ -32,27 +31,13 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/problem', problemRoutes);
-app.use('/api/v1/execute-code', executionRoutes);
-app.use('/api/v1/submission', submissionRoutes);
-app.use('/api/v1/playlist', playlistRoutes);
+// app.use('/api/v1/problem', problemRoutes);
+// app.use('/api/v1/execute-code', executionRoutes);
+// app.use('/api/v1/submission', submissionRoutes);
+// app.use('/api/v1/playlist', playlistRoutes);
 
 // Global error handler middleware
-interface CustomError extends Error {
-  statusCode?: number;
-  errors?: unknown[];
-}
-
-app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
-  const statusCode = err.statusCode || 500;
-
-  res.status(statusCode).json({
-    success: false,
-    message: err.message || 'Internal Server Error',
-    errors: err.errors || [],
-    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
-  });
-});
+app.use(errorMiddleware);
 
 async function startServer() {
   try {
