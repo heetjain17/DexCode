@@ -1,14 +1,20 @@
 import { createTransport } from 'nodemailer';
-import { ApiError, ApiSuccess } from './apiError.js';
-import Mailgen from 'mailgen';
+import Mailgen, { Content } from 'mailgen';
+import { ApiError } from './ApiError';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const sendMail = async (options) => {
+interface sendMailOptions {
+  email: string;
+  subject: string;
+  mailGenContent: Content;
+}
+
+export const sendMail = async (options: sendMailOptions) => {
   const mailGenerator = new Mailgen({
     theme: 'default',
     product: {
-      name: 'Leet Lad',
+      name: 'Dexter Morgan',
       link: 'https://mailgen.js/',
     },
   });
@@ -18,7 +24,7 @@ const sendMail = async (options) => {
 
   const transporter = createTransport({
     host: process.env.MAIL_HOST,
-    port: process.env.MAIL_PORT,
+    port: parseInt(process.env.MAIL_PORT || '587', 10),
     secure: false,
     auth: {
       user: process.env.MAIL_USERNAME,
@@ -36,14 +42,17 @@ const sendMail = async (options) => {
 
   try {
     await transporter.sendMail(mail);
-    console.log('Mail sent');
+    // console.log('Mail sent');
   } catch (error) {
-    console.error('Error sending mail:', error);
-    next(new ApiError(500, 'Error sending mail', error));
+    console.error('Mail error:', error);
+    throw new ApiError(500, 'Failed to send email. Please try again later.');
   }
 };
 
-const emailVerificationContent = (username, verificationUrl) => {
+export const emailVerificationContent = (
+  username: string,
+  verificationUrl: string
+) => {
   return {
     body: {
       name: username,
@@ -62,7 +71,10 @@ const emailVerificationContent = (username, verificationUrl) => {
   };
 };
 
-const forgotPasswordContent = (username, resetPasswordUrl) => {
+export const forgotPasswordContent = (
+  username: string,
+  resetPasswordUrl: string
+) => {
   return {
     body: {
       name: username,
@@ -80,5 +92,3 @@ const forgotPasswordContent = (username, resetPasswordUrl) => {
       "Need help, or have questions? Just reply to this email, we'd love to help.",
   };
 };
-
-export { sendMail, emailVerificationContent, forgotPasswordContent };

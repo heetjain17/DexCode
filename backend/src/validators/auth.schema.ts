@@ -2,7 +2,6 @@ import z from 'zod';
 
 export const registerSchema = z.object({
   email: z
-    .string()
     .email('Please enter a valid email address')
     .max(255, 'Email must be less than 255 characters'),
 
@@ -28,4 +27,9 @@ export const registerSchema = z.object({
     ),
 });
 
+export const verifyEmailSchema = z.object({
+  emailVerificationToken: z.string().min(1, 'Verification token is expired'),
+});
+
 export type RegisterDto = z.infer<typeof registerSchema>;
+export type VerifyEmailDTO = z.infer<typeof verifyEmailSchema>;
