@@ -31,5 +31,16 @@ export const verifyEmailSchema = z.object({
   emailVerificationToken: z.string().min(1, 'Verification token is expired'),
 });
 
+export const resendEmailVerfication = z.object({
+  email: z.email(),
+});
+
+export const loginSchema = z.object({
+  identifier: z.string().min(1, 'Email or username is required'),
+  password: z.string(),
+});
+
 export type RegisterDto = z.infer<typeof registerSchema>;
 export type VerifyEmailDTO = z.infer<typeof verifyEmailSchema>;
+export type ResendEmailVerficationDTO = z.infer<typeof resendEmailVerfication>;
+export type LoginSchemaDTO = z.infer<typeof loginSchema>;
