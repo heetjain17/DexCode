@@ -49,3 +49,16 @@ export type VerifyEmailDTO = z.infer<typeof verifyEmailSchema>;
 export type ResendEmailVerficationDTO = z.infer<typeof resendEmailVerfication>;
 export type LoginSchemaDTO = z.infer<typeof loginSchema>;
 export type oAuthSchemaDTO = z.infer<typeof oAuthSchema>;
+
+export type GitHubUser = {
+  id: number;
+  login: string;
+  name: string | null;
+  avatar_url: string;
+};
+
+export type GitHubEmail = {
+  email: string;
+  primary: boolean;
+  verified: boolean;
+};

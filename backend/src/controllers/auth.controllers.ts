@@ -3,6 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError, apiSuccess } from '../utils/ApiError';
 import {
   generateAccessandRefreshTokenService,
+  githubOAuthCallbackService,
   googleOAuthCallbackService,
   loginService,
   logoutService,
@@ -127,4 +128,15 @@ export const githubOAuthRedirect = asyncHandler(async (req, res) => {
 
   res.redirect(redirectUrl);
 });
-export const githubOAuthCallback = asyncHandler(async (req, res) => {});
+export const githubOAuthCallback = asyncHandler(async (req, res) => {
+  const { code } = req.validated!.query as oAuthSchemaDTO;
+  const user = await githubOAuthCallbackService({ code });
+
+  const { accessToken, refreshToken } =
+    await generateAccessandRefreshTokenService(user.id);
+  res
+    .cookie('accessToken', accessToken, accessTokenOptions)
+    .cookie('refreshToken', refreshToken, refreshTokenOptions);
+
+  res.redirect('http://localhost:5173/auth/callback');
+});

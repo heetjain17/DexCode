@@ -1,9 +1,11 @@
 import bcrypt from 'bcryptjs';
 import { db } from '../libs/db';
-import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
-import { ApiError, apiSuccess } from '../utils/ApiError';
+import jwt, { SignOptions } from 'jsonwebtoken';
+import { ApiError } from '../utils/ApiError';
 
 import type {
+  GitHubEmail,
+  GitHubUser,
   LoginSchemaDTO,
   oAuthSchema,
   oAuthSchemaDTO,
@@ -354,11 +356,10 @@ export const googleOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
     where: { email: userInfo.email },
   });
 
-  const baseUsername = userInfo.email.split('@')[0];
-
-  const username = await generateUniqueUsername(baseUsername);
-
   if (!user) {
+    const baseUsername = userInfo.email.split('@')[0];
+
+    const username = await generateUniqueUsername(baseUsername);
     user = await db.user.create({
       data: {
         email: userInfo.email,
@@ -379,4 +380,71 @@ export const googleOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
   };
 };
 
-export const githubOAuthCallbackService = async () => {};
+export const githubOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
+  const tokenRes = await axios.post(
+    `https://github.com/login/oauth/access_token`,
+    {
+      client_id: getEnv('GITHUB_CLIENT_ID'),
+      client_secret: getEnv('GITHUB_CLIENT_SECRET'),
+      code,
+      redirect_uri: getEnv('GITHUB_REDIRECT_URI'),
+    },
+    {
+      headers: {
+        Accept: 'application/json',
+      },
+    }
+  );
+
+  const githubAccessToken = tokenRes.data.access_token;
+
+  const userInfo = await axios.get<GitHubUser>(`https://api.github.com/user`, {
+    headers: {
+      Authorization: `Bearer ${githubAccessToken}`,
+    },
+  });
+
+  const emailRes = await axios.get<GitHubEmail[]>(
+    `https://api.github.com/user/emails`,
+    {
+      headers: {
+        Authorization: `Bearer ${githubAccessToken}`,
+      },
+    }
+  );
+
+  const emailObj = emailRes.data.find((e) => e.primary && e.verified);
+  const email = emailObj?.email;
+
+  if (!email) {
+    throw new ApiError(400, 'GitHub email not found or verified');
+  }
+
+  let user = await db.user.findUnique({
+    where: { email: email },
+  });
+
+  if (!user) {
+    const baseUsername = email.split('@')[0];
+    const username = await generateUniqueUsername(baseUsername);
+
+    user = await db.user.create({
+      data: {
+        email: email,
+        isEmailVerified: true,
+        provider: 'GITHUB',
+        profile: {
+          create: {
+            username: username,
+            displayName: userInfo.data.name ?? userInfo.data.login,
+            avatarUrl: userInfo.data.avatar_url,
+          },
+        },
+      },
+    });
+  }
+
+  return {
+    id: user.id,
+  };
+};

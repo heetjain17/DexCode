@@ -53,7 +53,11 @@ router.get(
 
 router.get('/github', githubOAuthRedirect);
 
-router.get('/github/callback', githubOAuthCallback);
+router.get(
+  '/github/callback',
+  validate({ query: oAuthSchema }),
+  githubOAuthCallback
+);
 
 // router.post('/forgotPassword');
 // router.post('/resetPassword/:token');
