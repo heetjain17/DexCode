@@ -3,6 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError, apiSuccess } from '../utils/ApiError';
 import {
   generateAccessandRefreshTokenService,
+  googleOAuthCallbackService,
   loginService,
   logoutService,
   refreshAccessTokenService,
@@ -10,7 +11,13 @@ import {
   resendEmailVerificationService,
   verifyService,
 } from '../services/auth.service';
-import { VerifyEmailDTO } from '@/validators/auth.schema';
+import {
+  LoginSchemaDTO,
+  oAuthSchemaDTO,
+  RegisterDto,
+  ResendEmailVerficationDTO,
+  VerifyEmailDTO,
+} from '@/validators/auth.schema';
 import { getEnv } from '@/utils/env';
 
 const accessTokenOptions: CookieOptions = {
@@ -27,7 +34,8 @@ const refreshTokenOptions: CookieOptions = {
 };
 
 export const register = asyncHandler(async (req, res) => {
-  const user = await registerService(req.body);
+  const data = req.validated!.body as RegisterDto;
+  const user = await registerService(data);
   res
     .status(201)
     .json(
@@ -47,12 +55,14 @@ export const verify = asyncHandler(async (req, res) => {
 });
 
 export const resendEmail = asyncHandler(async (req, res) => {
-  await resendEmailVerificationService(req.body);
+  const data = req.validated!.body as ResendEmailVerficationDTO;
+  await resendEmailVerificationService(data);
   res.status(200).json(apiSuccess(200, 'Verification email sent again'));
 });
 
 export const login = asyncHandler(async (req, res) => {
-  const user = await loginService(req.body);
+  const data = req.validated!.body as LoginSchemaDTO;
+  const user = await loginService(data);
   const { accessToken, refreshToken } =
     await generateAccessandRefreshTokenService(user.id);
   res
@@ -72,7 +82,7 @@ export const login = asyncHandler(async (req, res) => {
 export const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefToken = req.cookies?.refreshToken;
   if (!incomingRefToken) {
-    throw new ApiError(501, 'Refresh token missing');
+    throw new ApiError(401, 'Refresh token missing');
   }
   const { accessToken, refreshToken } =
     await refreshAccessTokenService(incomingRefToken);
@@ -99,7 +109,18 @@ export const googleOAuthRedirect = asyncHandler(async (req, res) => {
   res.redirect(redirectUrl);
 });
 
-export const googleOAuthCallback = asyncHandler(async (req, res) => {});
+export const googleOAuthCallback = asyncHandler(async (req, res) => {
+  const { code } = req.validated!.query as oAuthSchemaDTO;
+  const user = await googleOAuthCallbackService({ code });
+
+  const { accessToken, refreshToken } =
+    await generateAccessandRefreshTokenService(user.id);
+  res
+    .cookie('accessToken', accessToken, accessTokenOptions)
+    .cookie('refreshToken', refreshToken, refreshTokenOptions);
+
+  res.redirect('http://localhost:5173/auth/callback');
+});
 
 export const githubOAuthRedirect = asyncHandler(async (req, res) => {
   const redirectUrl = `https://github.com/login/oauth/authorize?client_id=${getEnv('GITHUB_CLIENT_ID')}&redirect_uri=${getEnv('GITHUB_REDIRECT_URI')}&scope=user:email`;

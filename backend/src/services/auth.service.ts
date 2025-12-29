@@ -5,6 +5,8 @@ import { ApiError, apiSuccess } from '../utils/ApiError';
 
 import type {
   LoginSchemaDTO,
+  oAuthSchema,
+  oAuthSchemaDTO,
   RegisterDto,
   ResendEmailVerficationDTO,
   VerifyEmailDTO,
@@ -12,9 +14,27 @@ import type {
 import crypto, { randomBytes } from 'crypto';
 import { emailVerificationContent, sendMail } from '@/utils/mail';
 import { getEnv } from '@/utils/env';
+import axios from 'axios';
 
 const hashToken = (token: string) =>
   crypto.createHash('sha256').update(token).digest('hex');
+
+const generateUniqueUsername = async (base: string) => {
+  let username = base.toLowerCase();
+  let exists = true;
+
+  while (exists) {
+    const count = await db.profile.count({
+      where: { username },
+    });
+
+    if (count === 0) break;
+
+    username = `${base}${Math.floor(Math.random() * 1000)}`;
+  }
+
+  return username;
+};
 
 export const registerService = async ({
   email,
@@ -300,6 +320,63 @@ export const logoutService = async (userId: string) => {
   });
 };
 
-export const googleOAuthCallbackService = async () => {};
+export const googleOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
+  const tokenRes = await axios.post(
+    `https://oauth2.googleapis.com/token`,
+    null,
+    {
+      params: {
+        code,
+        client_id: getEnv('GOOGLE_CLIENT_ID'),
+        client_secret: getEnv('GOOGLE_CLIENT_SECRET'),
+        redirect_uri: getEnv('GOOGLE_REDIRECT_URI'),
+        grant_type: 'authorization_code',
+      },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }
+  );
+
+  const googleAccessToken = tokenRes.data.access_token;
+
+  const userInfoRes = await axios.get(
+    `https://www.googleapis.com/oauth2/v3/userinfo`,
+    {
+      headers: {
+        Authorization: `Bearer ${googleAccessToken}`,
+      },
+    }
+  );
+  const userInfo = userInfoRes.data;
+
+  let user = await db.user.findUnique({
+    where: { email: userInfo.email },
+  });
+
+  const baseUsername = userInfo.email.split('@')[0];
+
+  const username = await generateUniqueUsername(baseUsername);
+
+  if (!user) {
+    user = await db.user.create({
+      data: {
+        email: userInfo.email,
+        isEmailVerified: true,
+        provider: 'GOOGLE',
+        profile: {
+          create: {
+            username: username,
+            displayName: userInfo.name,
+            avatarUrl: userInfo.picture,
+          },
+        },
+      },
+    });
+  }
+  return {
+    id: user.id,
+  };
+};
 
 export const githubOAuthCallbackService = async () => {};

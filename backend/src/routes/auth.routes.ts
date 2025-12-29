@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../middleware/validate.middleware';
 import {
   loginSchema,
+  oAuthSchema,
   registerSchema,
   resendEmailVerfication,
   verifyEmailSchema,
@@ -43,8 +44,15 @@ router.post('/refresh', refreshAccessToken);
 router.post('/logout', requireAuth, logout);
 
 router.get('/google', googleOAuthRedirect);
-router.get('/google/callback', googleOAuthCallback);
+
+router.get(
+  '/google/callback',
+  validate({ query: oAuthSchema }),
+  googleOAuthCallback
+);
+
 router.get('/github', githubOAuthRedirect);
+
 router.get('/github/callback', githubOAuthCallback);
 
 // router.post('/forgotPassword');

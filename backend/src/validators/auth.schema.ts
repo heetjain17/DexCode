@@ -40,7 +40,12 @@ export const loginSchema = z.object({
   password: z.string(),
 });
 
+export const oAuthSchema = z.object({
+  code: z.string().min(1, 'Code is required'),
+});
+
 export type RegisterDto = z.infer<typeof registerSchema>;
 export type VerifyEmailDTO = z.infer<typeof verifyEmailSchema>;
 export type ResendEmailVerficationDTO = z.infer<typeof resendEmailVerfication>;
 export type LoginSchemaDTO = z.infer<typeof loginSchema>;
+export type oAuthSchemaDTO = z.infer<typeof oAuthSchema>;
