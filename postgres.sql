@@ -26,7 +26,7 @@ SET row_security = off;
 -- *not* creating schema, since initdb creates it
 
 
-ALTER SCHEMA public OWNER TO haaland;
+ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: haaland
@@ -46,7 +46,7 @@ CREATE TYPE public."Difficulty" AS ENUM (
 );
 
 
-ALTER TYPE public."Difficulty" OWNER TO haaland;
+ALTER TYPE public."Difficulty" OWNER TO postgres;
 
 --
 -- Name: UserRole; Type: TYPE; Schema: public; Owner: haaland
@@ -58,7 +58,7 @@ CREATE TYPE public."UserRole" AS ENUM (
 );
 
 
-ALTER TYPE public."UserRole" OWNER TO haaland;
+ALTER TYPE public."UserRole" OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -78,7 +78,7 @@ CREATE TABLE public."Playlist" (
 );
 
 
-ALTER TABLE public."Playlist" OWNER TO haaland;
+ALTER TABLE public."Playlist" OWNER TO postgres;
 
 --
 -- Name: Problem; Type: TABLE; Schema: public; Owner: haaland
@@ -104,7 +104,7 @@ CREATE TABLE public."Problem" (
 );
 
 
-ALTER TABLE public."Problem" OWNER TO haaland;
+ALTER TABLE public."Problem" OWNER TO postgres;
 
 --
 -- Name: ProblemInPlaylist; Type: TABLE; Schema: public; Owner: haaland
@@ -119,7 +119,7 @@ CREATE TABLE public."ProblemInPlaylist" (
 );
 
 
-ALTER TABLE public."ProblemInPlaylist" OWNER TO haaland;
+ALTER TABLE public."ProblemInPlaylist" OWNER TO postgres;
 
 --
 -- Name: ProblemSolved; Type: TABLE; Schema: public; Owner: haaland
@@ -134,7 +134,7 @@ CREATE TABLE public."ProblemSolved" (
 );
 
 
-ALTER TABLE public."ProblemSolved" OWNER TO haaland;
+ALTER TABLE public."ProblemSolved" OWNER TO postgres;
 
 --
 -- Name: Submission; Type: TABLE; Schema: public; Owner: haaland
@@ -158,7 +158,7 @@ CREATE TABLE public."Submission" (
 );
 
 
-ALTER TABLE public."Submission" OWNER TO haaland;
+ALTER TABLE public."Submission" OWNER TO postgres;
 
 --
 -- Name: TestCaseResult; Type: TABLE; Schema: public; Owner: haaland
@@ -181,7 +181,7 @@ CREATE TABLE public."TestCaseResult" (
 );
 
 
-ALTER TABLE public."TestCaseResult" OWNER TO haaland;
+ALTER TABLE public."TestCaseResult" OWNER TO postgres;
 
 --
 -- Name: User; Type: TABLE; Schema: public; Owner: haaland
@@ -206,7 +206,7 @@ CREATE TABLE public."User" (
 );
 
 
-ALTER TABLE public."User" OWNER TO haaland;
+ALTER TABLE public."User" OWNER TO postgres;
 
 --
 -- Name: _prisma_migrations; Type: TABLE; Schema: public; Owner: haaland
@@ -224,7 +224,7 @@ CREATE TABLE public._prisma_migrations (
 );
 
 
-ALTER TABLE public._prisma_migrations OWNER TO haaland;
+ALTER TABLE public._prisma_migrations OWNER TO postgres;
 
 --
 -- Data for Name: Playlist; Type: TABLE DATA; Schema: public; Owner: haaland

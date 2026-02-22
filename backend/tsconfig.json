@@ -34,9 +34,11 @@
     "skipLibCheck": true,
 
     /* Runtime */
-    "noEmitOnError": true
+    "noEmitOnError": true,
+
+    "types": ["node"]
   },
 
-  "include": ["src", "prisma"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src", ],
+  "exclude": ["node_modules", "dist", "prisma"]
 }
