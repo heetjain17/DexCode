@@ -1,11 +1,13 @@
 import 'dotenv/config';
 import express from 'express';
+import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { sql } from 'drizzle-orm';
 
 import { db } from './libs/db';
 import { errorMiddleware } from './middleware/error.middleware';
+import { createGlobalLimiter } from './middleware/rateLimit.middleware';
 import authRoutes from './routes/auth.routes';
 import executionRoutes from './routes/executeCode.routes';
 import problemRoutes from './routes/problem.routes';
@@ -17,10 +19,17 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 const app = express();
 
+// Security & Protection
+app.use(helmet());
+
 // Middleware
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Rate Limiting - apply global limiter to all routes
+const globalLimiter = createGlobalLimiter();
+app.use(globalLimiter);
 
 // Health check endpoint
 app.get('/health', (_req, res) => {

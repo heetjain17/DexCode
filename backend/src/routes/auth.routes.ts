@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate.middleware';
+import { createAuthLimiter } from '../middleware/rateLimit.middleware';
 import {
   loginSchema,
   oAuthSchema,
@@ -23,18 +24,38 @@ import { requireAuth } from '@/middleware/auth.middleware';
 
 const router = Router();
 
-router.post('/register', validate({ body: registerSchema }), register);
+// Rate limiters for different auth endpoints
+const registerLimiter = createAuthLimiter('register');
+const loginLimiter = createAuthLimiter('login');
+const verifyLimiter = createAuthLimiter('verify');
+const resendEmailLimiter = createAuthLimiter('resendEmailVerification');
+const refreshLimiter = createAuthLimiter('refresh');
+const logoutLimiter = createAuthLimiter('logout');
 
-router.get('/verify/:emailVerificationToken', validate({ params: verifyEmailSchema }), verify);
+// Auth endpoints with rate limiting
+router.post('/register', registerLimiter, validate({ body: registerSchema }), register);
 
-router.post('/resendEmailVerification', validate({ body: resendEmailVerfication }), resendEmail);
+router.get(
+  '/verify/:emailVerificationToken',
+  verifyLimiter,
+  validate({ params: verifyEmailSchema }),
+  verify
+);
 
-router.post('/login', validate({ body: loginSchema }), login);
+router.post(
+  '/resendEmailVerification',
+  resendEmailLimiter,
+  validate({ body: resendEmailVerfication }),
+  resendEmail
+);
 
-router.post('/refresh', refreshAccessToken);
+router.post('/login', loginLimiter, validate({ body: loginSchema }), login);
 
-router.post('/logout', requireAuth, logout);
+router.post('/refresh', refreshLimiter, refreshAccessToken);
 
+router.post('/logout', logoutLimiter, requireAuth, logout);
+
+// OAuth endpoints (no rate limiting - inherently protected against brute-force)
 router.get('/google', googleOAuthRedirect);
 
 router.get('/google/callback', validate({ query: oAuthSchema }), googleOAuthCallback);
