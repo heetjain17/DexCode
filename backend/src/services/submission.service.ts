@@ -86,7 +86,10 @@ export async function getSubmissionById(id: string, userId: string): Promise<Sub
 export async function listUserSubmissions(
   userId: string,
   options: { problemId?: string; page: number; limit: number }
-): Promise<{ submissions: SubmissionListItem[]; pagination: { page: number; limit: number; total: number } }> {
+): Promise<{
+  submissions: SubmissionListItem[];
+  pagination: { page: number; limit: number; total: number };
+}> {
   const { problemId, page, limit } = options;
   const offset = (page - 1) * limit;
 

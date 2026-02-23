@@ -126,30 +126,26 @@ export async function createProblemService(
 
     const problemId = p.id;
 
-    await tx
-      .insert(testCases)
-      .values(
-        testcases.map((tc) => ({
-          problemId,
-          input: tc.input,
-          output: tc.output,
-          isHidden: tc.isHidden,
-          order: tc.order,
-        }))
-      );
+    await tx.insert(testCases).values(
+      testcases.map((tc) => ({
+        problemId,
+        input: tc.input,
+        output: tc.output,
+        isHidden: tc.isHidden,
+        order: tc.order,
+      }))
+    );
 
     if (exampleItems.length) {
-      await tx
-        .insert(examples)
-        .values(
-          exampleItems.map((e) => ({
-            problemId,
-            input: e.input,
-            output: e.output,
-            explanation: e.explanation,
-            order: e.order,
-          }))
-        );
+      await tx.insert(examples).values(
+        exampleItems.map((e) => ({
+          problemId,
+          input: e.input,
+          output: e.output,
+          explanation: e.explanation,
+          order: e.order,
+        }))
+      );
     }
 
     if (constraintItems.length) {
@@ -366,45 +362,39 @@ export async function updateProblemService(id: string, data: UpdateProblemDTO) {
     // Arrays — delete + reinsert
     if (data.testcases) {
       await tx.delete(testCases).where(eq(testCases.problemId, id));
-      await tx
-        .insert(testCases)
-        .values(
-          data.testcases.map((tc) => ({
-            problemId: id,
-            input: tc.input,
-            output: tc.output,
-            isHidden: tc.isHidden,
-            order: tc.order,
-          }))
-        );
+      await tx.insert(testCases).values(
+        data.testcases.map((tc) => ({
+          problemId: id,
+          input: tc.input,
+          output: tc.output,
+          isHidden: tc.isHidden,
+          order: tc.order,
+        }))
+      );
     }
 
     if (data.examples) {
       await tx.delete(examples).where(eq(examples.problemId, id));
-      await tx
-        .insert(examples)
-        .values(
-          data.examples.map((e) => ({
-            problemId: id,
-            input: e.input,
-            output: e.output,
-            explanation: e.explanation,
-            order: e.order,
-          }))
-        );
+      await tx.insert(examples).values(
+        data.examples.map((e) => ({
+          problemId: id,
+          input: e.input,
+          output: e.output,
+          explanation: e.explanation,
+          order: e.order,
+        }))
+      );
     }
 
     if (data.constraints) {
       await tx.delete(constraints).where(eq(constraints.problemId, id));
-      await tx
-        .insert(constraints)
-        .values(
-          data.constraints.map((c) => ({
-            problemId: id,
-            description: c.description,
-            order: c.order,
-          }))
-        );
+      await tx.insert(constraints).values(
+        data.constraints.map((c) => ({
+          problemId: id,
+          description: c.description,
+          order: c.order,
+        }))
+      );
     }
 
     if (data.hints) {
