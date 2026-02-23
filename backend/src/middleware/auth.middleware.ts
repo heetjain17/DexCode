@@ -1,8 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { eq } from 'drizzle-orm';
 import { ApiError } from '../utils/ApiError';
 import { getEnv } from '../utils/env';
 import { db } from '../libs/db';
+import { users } from '../db/schema';
 
 export const requireAuth = async (
   req: Request,
@@ -19,21 +21,13 @@ export const requireAuth = async (
 
   try {
     payload = jwt.verify(token, getEnv('ACCESS_TOKEN_SECRET')) as JwtPayload;
-  } catch (error) {
-    return res.status(401).json({
-      message: 'Unauthorized - Invalid token',
-    });
+  } catch {
+    return res.status(401).json({ message: 'Unauthorized - Invalid token' });
   }
 
-  const user = await db.user.findUnique({
-    where: {
-      id: payload.id,
-    },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-    },
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, payload.id),
+    columns: { id: true, email: true, role: true },
   });
 
   if (!user) {

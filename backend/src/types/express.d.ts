@@ -1,6 +1,5 @@
 // src/types/express.d.ts
-import { z } from 'zod';
-import type { User } from '@/generated/prisma';
+import type { users } from '@/db/schema';
 
 declare global {
   namespace Express {
@@ -13,13 +12,14 @@ declare global {
     }
   }
 }
+
 declare global {
   namespace Express {
     interface Request {
       user?: {
         id: string;
         email: string;
-        role: User['role'];
+        role: (typeof users.$inferSelect)['role'];
       };
     }
   }

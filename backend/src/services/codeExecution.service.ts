@@ -1,4 +1,3 @@
-import { db } from '@/libs/db';
 import { ApiError } from '@/utils/ApiError';
 import { pollBatchResults, submitBatch } from './judge0.services';
 

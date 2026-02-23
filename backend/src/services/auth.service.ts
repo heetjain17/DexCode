@@ -1,36 +1,37 @@
 import bcrypt from 'bcryptjs';
+import { eq, or, count } from 'drizzle-orm';
 import { db } from '../libs/db';
+import { users, profiles } from '../db/schema';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { ApiError } from '../utils/ApiError';
+import crypto, { randomBytes } from 'crypto';
+import { emailVerificationContent, sendMail } from '@/utils/mail';
+import { getEnv } from '@/utils/env';
+import axios from 'axios';
 
 import type {
   GitHubEmail,
   GitHubUser,
   LoginSchemaDTO,
-  oAuthSchema,
   oAuthSchemaDTO,
   RegisterDto,
   ResendEmailVerficationDTO,
   VerifyEmailDTO,
 } from '../validators/auth.schema';
-import crypto, { randomBytes } from 'crypto';
-import { emailVerificationContent, sendMail } from '@/utils/mail';
-import { getEnv } from '@/utils/env';
-import axios from 'axios';
 
 const hashToken = (token: string) =>
   crypto.createHash('sha256').update(token).digest('hex');
 
 const generateUniqueUsername = async (base: string) => {
   let username = base.toLowerCase();
-  let exists = true;
 
-  while (exists) {
-    const count = await db.profile.count({
-      where: { username },
-    });
+  while (true) {
+    const result = await db
+      .select({ cnt: count() })
+      .from(profiles)
+      .where(eq(profiles.username, username));
 
-    if (count === 0) break;
+    if (Number(result[0]?.cnt ?? 0) === 0) break;
 
     username = `${base}${Math.floor(Math.random() * 1000)}`;
   }
@@ -43,10 +44,8 @@ export const registerService = async ({
   username,
   password,
 }: RegisterDto) => {
-  const existingUser = await db.user.findUnique({
-    where: {
-      email: email,
-    },
+  const existingUser = await db.query.users.findFirst({
+    where: eq(users.email, email),
   });
 
   if (existingUser) {
@@ -54,32 +53,26 @@ export const registerService = async ({
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-
   const emailVerificationToken = randomBytes(32).toString('hex');
-  const emailVerificationTokenExpiry = new Date(
-    // Date.now() + 24 * 60 * 60 * 1000 // 24h
-    Date.now() + 60 * 1000 // 24h
-  );
+  const emailVerificationExpiry = new Date(Date.now() + 60 * 1000);
 
-  const newUser = await db.user.create({
-    data: {
-      email: email,
-      password: hashedPassword,
-      emailVerificationToken: emailVerificationToken,
-      emailVerificationExpiry: emailVerificationTokenExpiry,
-      profile: {
-        create: {
-          username: username,
-        },
-      },
-    },
-    include: {
-      profile: {
-        select: {
-          username: true,
-        },
-      },
-    },
+  const { newUser, profile } = await db.transaction(async (tx) => {
+    const [u] = await tx
+      .insert(users)
+      .values({
+        email,
+        password: hashedPassword,
+        emailVerificationToken,
+        emailVerificationExpiry,
+      })
+      .returning();
+
+    const [p] = await tx
+      .insert(profiles)
+      .values({ userId: u.id, username })
+      .returning();
+
+    return { newUser: u, profile: p };
   });
 
   const verificationUrl = `${getEnv('BASE_URL')}/api/v1/auth/verify/${newUser.emailVerificationToken}`;
@@ -88,7 +81,7 @@ export const registerService = async ({
       email: newUser.email,
       subject: 'Email verification',
       mailGenContent: emailVerificationContent(
-        newUser.profile?.username || 'User',
+        profile.username,
         verificationUrl
       ),
     });
@@ -99,17 +92,15 @@ export const registerService = async ({
   return {
     id: newUser.id,
     email: newUser.email,
-    username: newUser.profile?.username,
+    username: profile.username,
   };
 };
 
 export const verifyService = async ({
   emailVerificationToken,
 }: VerifyEmailDTO) => {
-  const user = await db.user.findFirst({
-    where: {
-      emailVerificationToken: emailVerificationToken,
-    },
+  const user = await db.query.users.findFirst({
+    where: eq(users.emailVerificationToken, emailVerificationToken),
   });
 
   if (!user) {
@@ -122,30 +113,26 @@ export const verifyService = async ({
 
   if (
     user.emailVerificationExpiry &&
-    user.emailVerificationExpiry < new Date(Date.now())
+    user.emailVerificationExpiry < new Date()
   ) {
     throw new ApiError(410, 'Verification token has expired');
   }
 
-  await db.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
+  await db
+    .update(users)
+    .set({
       isEmailVerified: true,
       emailVerificationToken: null,
       emailVerificationExpiry: null,
-    },
-  });
+    })
+    .where(eq(users.id, user.id));
 };
 
 export const resendEmailVerificationService = async ({
   email,
 }: ResendEmailVerficationDTO) => {
-  const user = await db.user.findUnique({
-    where: {
-      email: email,
-    },
+  const user = await db.query.users.findFirst({
+    where: eq(users.email, email),
   });
 
   if (!user) {
@@ -164,34 +151,26 @@ export const resendEmailVerificationService = async ({
   }
 
   const emailVerificationToken = randomBytes(32).toString('hex');
-  const emailVerificationTokenExpiry = new Date(
-    Date.now() + 24 * 60 * 60 * 1000 // 24h
-  );
+  const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  const newUser = await db.user.update({
-    where: {
-      email: email,
-    },
-    data: {
-      emailVerificationToken: emailVerificationToken,
-      emailVerificationExpiry: emailVerificationTokenExpiry,
-    },
-    include: {
-      profile: {
-        select: {
-          username: true,
-        },
-      },
-    },
+  const [updatedUser] = await db
+    .update(users)
+    .set({ emailVerificationToken, emailVerificationExpiry })
+    .where(eq(users.email, email))
+    .returning();
+
+  const profile = await db.query.profiles.findFirst({
+    where: eq(profiles.userId, updatedUser.id),
+    columns: { username: true },
   });
 
-  const verificationUrl = `${getEnv('BASE_URL')}/api/v1/auth/verify/${newUser.emailVerificationToken}`;
+  const verificationUrl = `${getEnv('BASE_URL')}/api/v1/auth/verify/${updatedUser.emailVerificationToken}`;
   try {
     await sendMail({
-      email: newUser.email,
+      email: updatedUser.email,
       subject: 'Email verification',
       mailGenContent: emailVerificationContent(
-        newUser.profile?.username || 'User',
+        profile?.username ?? 'User',
         verificationUrl
       ),
     });
@@ -204,43 +183,41 @@ export const loginService = async ({
   identifier,
   password,
 }: LoginSchemaDTO) => {
-  const user = await db.user.findFirst({
-    where: {
-      OR: [{ email: identifier }, { profile: { username: identifier } }],
-    },
-    include: {
-      profile: true,
-    },
-  });
+  const result = await db
+    .select({ user: users, profile: profiles })
+    .from(users)
+    .leftJoin(profiles, eq(users.id, profiles.userId))
+    .where(or(eq(users.email, identifier), eq(profiles.username, identifier)))
+    .limit(1);
 
-  if (!user || !user.password) {
-    throw new ApiError(401, 'Invaliid credentials');
+  const row = result[0];
+
+  if (!row?.user || !row.user.password) {
+    throw new ApiError(401, 'Invalid credentials');
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await bcrypt.compare(password, row.user.password);
 
   if (!isMatch) {
     throw new ApiError(400, 'Invalid credentials');
   }
 
-  if (!user.isEmailVerified) {
+  if (!row.user.isEmailVerified) {
     throw new ApiError(403, 'Please verify your email first');
   }
 
   return {
-    id: user.id,
-    email: user.email,
-    username: user.profile?.username,
-    avatar: user.profile?.avatarUrl,
-    name: user.profile?.displayName,
+    id: row.user.id,
+    email: row.user.email,
+    username: row.profile?.username,
+    avatar: row.profile?.avatarUrl,
+    name: row.profile?.displayName,
   };
 };
 
 export const generateAccessandRefreshTokenService = async (userId: string) => {
-  const user = await db.user.findUnique({
-    where: {
-      id: userId,
-    },
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId),
   });
 
   if (!user) {
@@ -248,30 +225,21 @@ export const generateAccessandRefreshTokenService = async (userId: string) => {
   }
 
   const accessToken = jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-    },
+    { id: user.id, email: user.email },
     getEnv('ACCESS_TOKEN_SECRET') as string,
-    {
-      expiresIn: getEnv('ACCESS_TOKEN_EXPIRY'),
-    } as SignOptions
+    { expiresIn: getEnv('ACCESS_TOKEN_EXPIRY') } as SignOptions
   );
 
   const refreshToken = jwt.sign(
-    {
-      id: user.id,
-    },
+    { id: user.id },
     getEnv('REFRESH_TOKEN_SECRET') as string,
-    {
-      expiresIn: getEnv('REFRESH_TOKEN_EXPIRY'),
-    } as SignOptions
+    { expiresIn: getEnv('REFRESH_TOKEN_EXPIRY') } as SignOptions
   );
 
-  await db.user.update({
-    where: { id: userId },
-    data: { refreshToken: hashToken(refreshToken) },
-  });
+  await db
+    .update(users)
+    .set({ refreshToken: hashToken(refreshToken) })
+    .where(eq(users.id, userId));
 
   return { accessToken, refreshToken };
 };
@@ -287,8 +255,8 @@ export const refreshAccessTokenService = async (incomingRefToken: string) => {
     throw new ApiError(401, 'Invalid refresh token');
   }
 
-  const user = await db.user.findUnique({
-    where: { id: payload.id },
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, payload.id),
   });
 
   if (!user || !user.refreshToken) {
@@ -298,11 +266,10 @@ export const refreshAccessTokenService = async (incomingRefToken: string) => {
   const incomingHash = hashToken(incomingRefToken);
 
   if (incomingHash !== user.refreshToken) {
-    await db.user.update({
-      where: { id: user.id },
-      data: { refreshToken: null },
-    });
-
+    await db
+      .update(users)
+      .set({ refreshToken: null })
+      .where(eq(users.id, user.id));
     throw new ApiError(401, 'Refresh token reuse detected');
   }
 
@@ -314,12 +281,10 @@ export const refreshAccessTokenService = async (incomingRefToken: string) => {
 };
 
 export const logoutService = async (userId: string) => {
-  const user = await db.user.update({
-    where: { id: userId },
-    data: {
-      refreshToken: null,
-    },
-  });
+  await db
+    .update(users)
+    .set({ refreshToken: null })
+    .where(eq(users.id, userId));
 };
 
 export const googleOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
@@ -334,9 +299,7 @@ export const googleOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
         redirect_uri: getEnv('GOOGLE_REDIRECT_URI'),
         grant_type: 'authorization_code',
       },
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     }
   );
 
@@ -345,39 +308,40 @@ export const googleOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
   const userInfoRes = await axios.get(
     `https://www.googleapis.com/oauth2/v3/userinfo`,
     {
-      headers: {
-        Authorization: `Bearer ${googleAccessToken}`,
-      },
+      headers: { Authorization: `Bearer ${googleAccessToken}` },
     }
   );
   const userInfo = userInfoRes.data;
 
-  let user = await db.user.findUnique({
-    where: { email: userInfo.email },
+  let user = await db.query.users.findFirst({
+    where: eq(users.email, userInfo.email),
   });
 
   if (!user) {
-    const baseUsername = userInfo.email.split('@')[0];
+    const username = await generateUniqueUsername(userInfo.email.split('@')[0]);
 
-    const username = await generateUniqueUsername(baseUsername);
-    user = await db.user.create({
-      data: {
-        email: userInfo.email,
-        isEmailVerified: true,
-        provider: 'GOOGLE',
-        profile: {
-          create: {
-            username: username,
-            displayName: userInfo.name,
-            avatarUrl: userInfo.picture,
-          },
-        },
-      },
+    user = await db.transaction(async (tx) => {
+      const [u] = await tx
+        .insert(users)
+        .values({
+          email: userInfo.email,
+          isEmailVerified: true,
+          provider: 'GOOGLE',
+        })
+        .returning();
+
+      await tx.insert(profiles).values({
+        userId: u.id,
+        username,
+        displayName: userInfo.name,
+        avatarUrl: userInfo.picture,
+      });
+
+      return u;
     });
   }
-  return {
-    id: user.id,
-  };
+
+  return { id: user.id };
 };
 
 export const githubOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
@@ -389,27 +353,19 @@ export const githubOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
       code,
       redirect_uri: getEnv('GITHUB_REDIRECT_URI'),
     },
-    {
-      headers: {
-        Accept: 'application/json',
-      },
-    }
+    { headers: { Accept: 'application/json' } }
   );
 
   const githubAccessToken = tokenRes.data.access_token;
 
   const userInfo = await axios.get<GitHubUser>(`https://api.github.com/user`, {
-    headers: {
-      Authorization: `Bearer ${githubAccessToken}`,
-    },
+    headers: { Authorization: `Bearer ${githubAccessToken}` },
   });
 
   const emailRes = await axios.get<GitHubEmail[]>(
     `https://api.github.com/user/emails`,
     {
-      headers: {
-        Authorization: `Bearer ${githubAccessToken}`,
-      },
+      headers: { Authorization: `Bearer ${githubAccessToken}` },
     }
   );
 
@@ -420,31 +376,29 @@ export const githubOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
     throw new ApiError(400, 'GitHub email not found or verified');
   }
 
-  let user = await db.user.findUnique({
-    where: { email: email },
+  let user = await db.query.users.findFirst({
+    where: eq(users.email, email),
   });
 
   if (!user) {
-    const baseUsername = email.split('@')[0];
-    const username = await generateUniqueUsername(baseUsername);
+    const username = await generateUniqueUsername(email.split('@')[0]);
 
-    user = await db.user.create({
-      data: {
-        email: email,
-        isEmailVerified: true,
-        provider: 'GITHUB',
-        profile: {
-          create: {
-            username: username,
-            displayName: userInfo.data.name ?? userInfo.data.login,
-            avatarUrl: userInfo.data.avatar_url,
-          },
-        },
-      },
+    user = await db.transaction(async (tx) => {
+      const [u] = await tx
+        .insert(users)
+        .values({ email, isEmailVerified: true, provider: 'GITHUB' })
+        .returning();
+
+      await tx.insert(profiles).values({
+        userId: u.id,
+        username,
+        displayName: userInfo.data.name ?? userInfo.data.login,
+        avatarUrl: userInfo.data.avatar_url,
+      });
+
+      return u;
     });
   }
 
-  return {
-    id: user.id,
-  };
+  return { id: user.id };
 };
