@@ -22,6 +22,10 @@ import type {
 const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
 
 const generateUniqueUsername = async (base: string) => {
+  if (!base || typeof base !== 'string') {
+    base = 'user';
+  }
+
   let username = base.toLowerCase();
 
   while (true) {
@@ -32,7 +36,7 @@ const generateUniqueUsername = async (base: string) => {
 
     if (Number(result[0]?.cnt ?? 0) === 0) break;
 
-    username = `${base}${Math.floor(Math.random() * 1000)}`;
+    username = `${base.toLowerCase()}${Math.floor(Math.random() * 1000)}`;
   }
 
   return username;
@@ -184,7 +188,7 @@ export const loginService = async ({ identifier, password }: LoginSchemaDTO) => 
     email: row.user.email,
     username: row.profile?.username,
     avatar: row.profile?.avatarUrl,
-    name: row.profile?.displayName,
+    name: row.profile?.name,
   };
 };
 
@@ -293,7 +297,7 @@ export const googleOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
       await tx.insert(profiles).values({
         userId: u.id,
         username,
-        displayName: userInfo.name,
+        name: userInfo.name,
         avatarUrl: userInfo.picture,
       });
 
@@ -349,7 +353,7 @@ export const githubOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
       await tx.insert(profiles).values({
         userId: u.id,
         username,
-        displayName: userInfo.data.name ?? userInfo.data.login,
+        name: userInfo.data.name ?? userInfo.data.login,
         avatarUrl: userInfo.data.avatar_url,
       });
 

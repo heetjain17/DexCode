@@ -53,8 +53,6 @@ export const testCaseStatusEnum = pgEnum('TestCaseStatus', [
 
 export const users = pgTable('User', {
   id: uuid('id').primaryKey().defaultRandom(),
-  image: text('image'),
-  name: text('name'),
   email: text('email').unique().notNull(),
   role: userRoleEnum('role').default('USER').notNull(),
   password: text('password'),
@@ -79,7 +77,7 @@ export const profiles = pgTable('Profile', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   username: text('username').unique().notNull(),
-  displayName: text('displayName'),
+  name: text('name'),
   avatarUrl: text('avatarUrl'),
   bio: text('bio'),
   location: text('location'),

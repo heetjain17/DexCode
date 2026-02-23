@@ -113,7 +113,6 @@ async function main() {
   const [admin] = await db
     .insert(users)
     .values({
-      name: 'Admin User',
       email: 'admin@dexcode.com',
       role: 'ADMIN',
       password: 'hashed_password_placeholder',
@@ -124,14 +123,13 @@ async function main() {
   await db.insert(profiles).values({
     userId: admin.id,
     username: 'admin',
-    displayName: 'Admin Master',
+    name: 'Admin Master',
     bio: 'Platform Administrator',
   });
 
   const [coder] = await db
     .insert(users)
     .values({
-      name: 'Test Coder',
       email: 'coder@dexcode.com',
       role: 'USER',
       password: 'hashed_password_placeholder',
@@ -142,7 +140,7 @@ async function main() {
   await db.insert(profiles).values({
     userId: coder.id,
     username: 'testcoder',
-    displayName: 'Test Coder',
+    name: 'Test Coder',
     bio: 'I love solving problems!',
     problemsSolved: 0,
   });
