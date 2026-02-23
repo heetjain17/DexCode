@@ -29,10 +29,20 @@ export const resendEmailVerfication = z.object({
   email: z.email(),
 });
 
-export const loginSchema = z.object({
-  identifier: z.string().min(1, 'Email or username is required'),
-  password: z.string(),
-});
+export const loginSchema = z
+  .object({
+    identifier: z.string().optional(),
+    email: z.string().optional(),
+    password: z.string().min(1, 'Password is required'),
+  })
+  .refine((data) => data.identifier || data.email, {
+    message: 'Email or username is required',
+    path: ['identifier'],
+  })
+  .transform((data) => ({
+    identifier: data.identifier || data.email || '',
+    password: data.password,
+  }));
 
 export const oAuthSchema = z.object({
   code: z.string().min(1, 'Code is required'),

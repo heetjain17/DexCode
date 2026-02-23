@@ -53,7 +53,7 @@ Register a new account. Sends a verification email.
 
 ```json
 {
-  "name": "Anton",
+  "username": "Anton",
   "email": "anton@example.com",
   "password": "StrongPass123!"
 }

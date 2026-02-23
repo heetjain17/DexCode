@@ -53,7 +53,7 @@ export const registerService = async ({ email, username, password }: RegisterDto
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const emailVerificationToken = randomBytes(32).toString('hex');
-  const emailVerificationExpiry = new Date(Date.now() + 60 * 1000);
+  const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   const { newUser, profile } = await db.transaction(async (tx) => {
     const [u] = await tx
