@@ -8,20 +8,24 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx src/db/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/adapter-pg": "^7.4.1",
-    "@prisma/client": "^7.4.1",
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
+    "drizzle-orm": "^0.45.1",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
@@ -39,13 +43,10 @@
     "@types/node": "^25.3.0",
     "@types/nodemailer": "^7.0.4",
     "@types/pg": "^8.16.0",
+    "drizzle-kit": "^0.31.9",
     "prettier": "^3.5.3",
-    "prisma": "^7.4.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

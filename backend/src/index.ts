@@ -8,7 +8,6 @@ import problemRoutes from './routes/problem.routes';
 import executionRoutes from './routes/executeCode.routes';
 // import submissionRoutes from './routes/submission.routes';
 // import playlistRoutes from './routes/playlist.routes';
-import { db } from './libs/db';
 import { errorMiddleware } from './middleware/error.middleware';
 
 dotenv.config();
@@ -41,8 +40,6 @@ app.use(errorMiddleware);
 
 async function startServer() {
   try {
-    await db.$connect();
-    console.log('✅ Database connected');
     app.listen(PORT, () => {
       console.log(`Server is up & running on http://localhost:${PORT}`);
     });
