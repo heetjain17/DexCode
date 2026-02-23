@@ -1,3 +1,4 @@
+import { Router } from 'express';
 import {
   createProblem,
   deleteProblem,
@@ -5,24 +6,39 @@ import {
   getProblem,
   updateProblem,
 } from '@/controllers/problem.controller';
-import { requireAuth, reuireRole } from '@/middleware/auth.middleware';
+import { optionalAuth, requireAuth, reuireRole } from '@/middleware/auth.middleware';
 import { validate } from '@/middleware/validate.middleware';
-import { createProblemSchema } from '@/validators/problem.schema';
-import { Router } from 'express';
+import {
+  createProblemSchema,
+  problemIdParamSchema,
+  problemQuerySchema,
+  updateProblemSchema,
+} from '@/validators/problem.schema';
 
 const router = Router();
 
 router.post(
-  '/problem',
+  '/',
   requireAuth,
   reuireRole('ADMIN'),
   validate({ body: createProblemSchema }),
   createProblem
 );
-router.get('/problem', getAllProblems);
-router.get('/problem/:id', getProblem);
-router.put('/problem/:id', updateProblem);
-router.delete('/problem/:id', deleteProblem);
-// router.get(':id');
+router.get('/', optionalAuth, validate({ query: problemQuerySchema }), getAllProblems);
+router.get('/:id', optionalAuth, validate({ params: problemIdParamSchema }), getProblem);
+router.put(
+  '/:id',
+  requireAuth,
+  reuireRole('ADMIN'),
+  validate({ params: problemIdParamSchema, body: updateProblemSchema }),
+  updateProblem
+);
+router.delete(
+  '/:id',
+  requireAuth,
+  reuireRole('ADMIN'),
+  validate({ params: problemIdParamSchema }),
+  deleteProblem
+);
 
 export default router;

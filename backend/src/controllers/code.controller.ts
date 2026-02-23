@@ -130,6 +130,24 @@ export const submitCode = asyncHandler(async (req, res) => {
       });
   }
 
+  // Update denormalized problem stats
+  await db
+    .update(problems)
+    .set({
+      totalSubmissions: sql`${problems.totalSubmissions} + 1`,
+      successfulSubmissions: allPassed
+        ? sql`${problems.successfulSubmissions} + 1`
+        : problems.successfulSubmissions,
+      acceptanceRate: sql`
+        round(
+          cast(${problems.successfulSubmissions} + ${allPassed ? 1 : 0} as numeric)
+          / cast(${problems.totalSubmissions} + 1 as numeric) * 100,
+          2
+        )
+      `,
+    })
+    .where(eq(problems.id, problemId));
+
   // Build detailed analysis from in-memory results (no extra DB query)
   const passed = detailedResults.filter((r) => r.passed).length;
   const failed = detailedResults.length - passed;

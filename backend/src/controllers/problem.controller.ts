@@ -1,16 +1,67 @@
-import { createProblemService } from '@/services/problem.service';
 import { apiSuccess } from '@/utils/ApiError';
 import { asyncHandler } from '@/utils/asyncHandler';
-import { CreateProblemDTO } from '@/validators/problem.schema';
+import {
+  createProblemService,
+  deleteProblemService,
+  getAllProblemsService,
+  getProblemService,
+  updateProblemService,
+} from '@/services/problem.service';
+import type {
+  CreateProblemDTO,
+  ProblemQueryDTO,
+  UpdateProblemDTO,
+} from '@/validators/problem.schema';
 
 export const createProblem = asyncHandler(async (req, res) => {
   const data = req.validated!.body as CreateProblemDTO;
 
-  const problem = await createProblemService(data, req.user!.id);
+  const result = await createProblemService(data, req.user!.id);
 
-  res.status(201).json(apiSuccess(201, 'Problem created', problem));
+  if (!result.success) {
+    res.status(400).json({
+      success: false,
+      statusCode: 400,
+      message: 'Reference solution failed test cases',
+      data: { details: result.details },
+    });
+    return;
+  }
+
+  res.status(201).json(apiSuccess(201, 'Problem created', { id: result.id, slug: result.slug }));
 });
-export const getAllProblems = asyncHandler(async (_req, _res) => {});
-export const getProblem = asyncHandler(async (_req, _res) => {});
-export const updateProblem = asyncHandler(async (_req, _res) => {});
-export const deleteProblem = asyncHandler(async (_req, _res) => {});
+
+export const getAllProblems = asyncHandler(async (req, res) => {
+  const filters = req.validated!.query as ProblemQueryDTO;
+  const userId = req.user?.id;
+
+  const result = await getAllProblemsService(userId, filters);
+
+  res.status(200).json(apiSuccess(200, 'Problems retrieved', result));
+});
+
+export const getProblem = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user?.id;
+
+  const problem = await getProblemService(id, userId);
+
+  res.status(200).json(apiSuccess(200, 'Problem retrieved', problem));
+});
+
+export const updateProblem = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const data = req.validated!.body as UpdateProblemDTO;
+
+  const result = await updateProblemService(id, data);
+
+  res.status(200).json(apiSuccess(200, 'Problem updated', result));
+});
+
+export const deleteProblem = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  await deleteProblemService(id);
+
+  res.status(200).json(apiSuccess(200, 'Problem deleted'));
+});

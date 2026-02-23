@@ -43,3 +43,21 @@ export const reuireRole =
     }
     next();
   };
+
+export const optionalAuth = async (req: Request, _res: Response, next: NextFunction) => {
+  const token = req.cookies.accessToken;
+  if (!token) return next();
+
+  try {
+    const payload = jwt.verify(token, getEnv('ACCESS_TOKEN_SECRET')) as JwtPayload;
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, payload.id),
+      columns: { id: true, email: true, role: true },
+    });
+    if (user) req.user = user;
+  } catch {
+    // invalid token — continue as unauthenticated
+  }
+
+  next();
+};
