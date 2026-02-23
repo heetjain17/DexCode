@@ -1,129 +1,198 @@
-# 🚀 DexCode Backend
+# DexCode
 
-Welcome to the backend of the **DexCode** project\! This document breaks down the server-side code, explaining its architecture, core concepts, and how to get it up and running on your local machine.
+A full-stack competitive programming platform — think LeetCode, built from scratch.
 
------
+Users can browse problems, write code in the browser, run it against example test cases, submit for full grading, and track their solving history. Admins can create and manage problems.
 
-## 📂 Backend Directory Structure
+---
 
-A well-organized folder structure is crucial for a scalable project. Here’s a look at how the DexCode backend is organized, following a standard Node.js/Express pattern:
+## Tech Stack
+
+### Backend
+
+| Layer          | Technology                                          |
+| -------------- | --------------------------------------------------- |
+| Runtime        | Node.js + TypeScript                                |
+| Framework      | Express 5                                           |
+| ORM            | Drizzle ORM                                         |
+| Database       | PostgreSQL (Supabase)                               |
+| Auth           | JWT (access + refresh tokens) + Google/GitHub OAuth |
+| Code Execution | Judge0 (self-hosted)                                |
+| Validation     | Zod                                                 |
+| Email          | Nodemailer + Mailtrap                               |
+
+### Frontend
+
+| Layer     | Technology         |
+| --------- | ------------------ |
+| Framework | React + TypeScript |
+| Build     | Vite               |
+
+---
+
+## Repository Structure
 
 ```
-backend/
-├── 📁 config/
-│   └── db.js           # Database connection logic
-├── 📁 controllers/
-│   └── userController.js # Handles logic for user-related requests
-├── 📁 middlewares/
-│   └── authMiddleware.js # Protects routes by verifying tokens
-├── 📁 models/
-│   └── User.js         # Mongoose schema for the User model
-├── 📁 routes/
-│   └── userRoutes.js   # Defines API endpoints for users
-├── .env                  # Stores environment variables (database URI, secrets)
-├── package.json          # Lists project dependencies and scripts
-└── server.js             # The main entry point for the application
+DexCode/
+├── backend/
+│   ├── src/
+│   │   ├── controllers/     # Request handlers
+│   │   ├── services/        # Business logic & DB queries
+│   │   ├── middleware/       # Auth, validation, error handling
+│   │   ├── routes/          # Express routers
+│   │   ├── db/
+│   │   │   ├── schema.ts    # Drizzle schema (25 tables, 5 enums)
+│   │   │   └── seed.ts      # Database seeder
+│   │   ├── libs/
+│   │   │   ├── db.ts        # Drizzle client (pg Pool)
+│   │   │   └── judge0.client.ts
+│   │   ├── validators/      # Zod schemas
+│   │   ├── utils/           # ApiError, asyncHandler, mail
+│   │   └── index.ts         # Entry point
+│   ├── drizzle/migrations/  # Generated SQL migrations
+│   ├── drizzle.config.ts
+│   └── package.json
+├── frontend/
+└── README.md
 ```
 
-  * **`config/`**: Holds configuration files, like the setup for your database connection.
-  * **`controllers/`**: This is where the core logic lives. Controllers take requests from the routes, process them, and send back a response.
-  * **`middlewares/`**: These are helper functions that run *between* the request and the controller. Perfect for tasks like checking if a user is logged in (`authMiddleware.js`).
-  * **`models/`**: Defines the data structure. Each file in this folder typically corresponds to a collection in your database, defining its schema.
-  * **`routes/`**: Contains the API endpoints. It maps specific URLs (e.g., `/api/users`) to the correct controller functions.
-  * **`.env`**: A crucial file for security. It stores sensitive information like database passwords and API keys, keeping them out of your source code.
-  * **`server.js`**: The heart of the application. It initializes the Express server, connects to the database, and wires up all the routes and middlewares.
+---
 
------
+## Database Schema
 
-## 🏗️ What are Controllers?
+25 tables across 6 domains, all hosted on Supabase PostgreSQL.
 
-Think of **controllers** as the "brains" 🧠 of your API. They are functions that handle the business logic for each API endpoint. When a client sends a request to a specific URL, the router calls the corresponding controller function to figure out what to do.
+| Domain      | Tables                                                                    |
+| ----------- | ------------------------------------------------------------------------- |
+| Auth        | `User`, `Profile`                                                         |
+| Problems    | `Problem`, `TestCase`, `CodeTemplate`, `Example`, `Constraint`, `Hint`    |
+| Taxonomy    | `Tag`, `Company`, `Topic`, `ProblemTag`, `ProblemCompany`, `ProblemTopic` |
+| Submissions | `Submission`, `TestCaseResult`                                            |
+| Progress    | `ProblemSolved`, `ProblemRating`                                          |
+| Playlists   | `Playlist`, `ProblemInPlaylist`                                           |
+| Discussions | `Discussion`, `DiscussionComment`, `DiscussionVote`, `CommentVote`        |
 
-**A typical controller workflow:**
+---
 
-1.  Receives the request from the router.
-2.  Validates any incoming data.
-3.  Interacts with the `models` to fetch or save data in the database.
-4.  Sends a JSON response back to the client.
+## Getting Started
 
-**Example of a Controller Function:**
+### Prerequisites
 
-```javascript
-// controllers/userController.js
-const User = require('../models/User');
+- Node.js 18+
+- A Supabase project (or any PostgreSQL instance)
+- Judge0 instance running locally (Docker recommended)
 
-// @desc    Create a new user
-// @route   POST /api/users
-exports.createUser = async (req, res) => {
-  try {
-    const newUser = await User.create(req.body);
-    res.status(201).json({ success: true, data: newUser });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
+### Backend Setup
+
+```bash
+cd backend
+npm install
 ```
 
------
+Copy `.env` and fill in your values:
 
-## 🛡️ What are Middlewares?
+```env
+PORT=8080
 
-**Middlewares** are functions that act like security guards or gatekeepers for your API routes. They execute *before* the main controller logic runs, giving you the power to intercept and modify the request.
+# Database (Supabase session-mode pooler — port 5432, IPv4)
+DATABASE_URL="postgresql://postgres.<project>:<password>@aws-<region>.pooler.supabase.com:5432/postgres"
 
-Common uses for middleware include:
+# JWT
+ACCESS_TOKEN_SECRET=<random-256-bit-hex>
+ACCESS_TOKEN_EXPIRY='2h'
+REFRESH_TOKEN_SECRET=<random-256-bit-hex>
+REFRESH_TOKEN_EXPIRY='7d'
 
-  * **Authentication**: Checking for a valid token to see if a user is logged in.
-  * **Authorization**: Verifying if a logged-in user has permission to access a specific resource.
-  * **Logging**: Recording details about every request for debugging.
-  * **Error Handling**: A central place to catch and manage errors.
+# OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://localhost:8080/api/v1/auth/google/callback
 
-**Example of an Authentication Middleware:**
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_REDIRECT_URI=http://localhost:8080/api/v1/auth/github/callback
 
-```javascript
-// middlewares/authMiddleware.js
-const jwt = require('jsonwebtoken');
+# Email
+MAIL_HOST=
+MAIL_PORT=
+MAIL_USERNAME=
+MAIL_PASSWORD=
 
-exports.protect = (req, res, next) => {
-  const token = req.header('x-auth-token');
-
-  // Check if token exists
-  if (!token) {
-    return res.status(401).json({ message: 'Access denied, no token provided' });
-  }
-
-  // Verify the token
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user; // Add user payload to the request
-    next(); // Pass control to the next middleware or controller
-  } catch (error) {
-    res.status(400).json({ message: 'Invalid token' });
-  }
-};
+# Judge0
+JUDGE0_URL=http://localhost:2358
 ```
 
------
+Push schema to your database:
 
-## ⚙️ Running the Project Locally
+```bash
+npm run db:push
+```
 
-Ready to run the server? Just follow these simple steps.
+Seed sample data (38 problems, users, tags, companies):
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/heetjain17/DexCode.git
-    ```
-2.  **Navigate to the backend directory:**
-    ```bash
-    cd DexCode/backend
-    ```
-3.  **Install all the required packages:**
-    ```bash
-    npm install
-    ```
-4.  **Create a `.env` file** in the `backend` directory. Copy the contents of `.env.example` (if it exists) and fill in your database connection string, JWT secret, and other variables.
-5.  **Start the server\!**
-    ```bash
-    npm start
-    ```
+```bash
+npm run db:seed
+```
 
-Your backend should now be live and ready to handle requests\! 🎉
+Run the dev server:
+
+```bash
+npm run dev
+```
+
+The server starts on `http://localhost:8080`. On boot it runs a live DB connectivity check and logs the connected database name and server timestamp before accepting requests.
+
+### Available Scripts
+
+| Script                | Description                        |
+| --------------------- | ---------------------------------- |
+| `npm run dev`         | Start dev server with hot reload   |
+| `npm run db:push`     | Push schema changes directly to DB |
+| `npm run db:generate` | Generate SQL migration files       |
+| `npm run db:migrate`  | Apply generated migrations         |
+| `npm run db:studio`   | Open Drizzle Studio GUI            |
+| `npm run db:seed`     | Seed the database                  |
+
+---
+
+## API Reference
+
+See [`backend/API_DOCS.md`](backend/API_DOCS.md) for full endpoint documentation.
+
+All API responses follow this shape:
+
+```json
+{
+  "statusCode": 200,
+  "message": "...",
+  "data": { ... }
+}
+```
+
+Errors:
+
+```json
+{
+  "statusCode": 400,
+  "message": "Validation failed",
+  "errors": [ ... ]
+}
+```
+
+---
+
+## Implementation Status
+
+| Feature                  | Status |
+| ------------------------ | ------ |
+| Email/password auth      | Done   |
+| Email verification       | Done   |
+| Google & GitHub OAuth    | Done   |
+| JWT refresh flow         | Done   |
+| Problem browsing         | WIP    |
+| Code run (examples)      | Done   |
+| Code submit (grading)    | Done   |
+| Submission history       | WIP    |
+| Playlists                | WIP    |
+| Discussions              | WIP    |
+| Admin problem management | WIP    |
