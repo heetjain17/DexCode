@@ -1,16 +1,22 @@
 /**
  * Rate Limiting Configuration
  *
- * Three-tier rate limiting strategy:
- * 1. Global - Basic protection against general DoS/spam
- * 2. Auth - Strict protection against credential stuffing and brute-force
- * 3. Judge0 - Prevents recursive/automated submissions and API cost overruns
+ * Four-tier Judge0 protection strategy:
+ * 1. Per-minute limit (5 submissions) - Prevents immediate spam
+ * 2. Per-day limit (50 submissions) - Hard cost control
+ * 3. Concurrent limit (1 submission) - Prevents simultaneous API calls
+ * 4. Global limits - Basic DoS/brute-force protection
  */
 
 interface RateLimitConfig {
   windowMs: number;
   max: number;
   message: string;
+}
+
+export interface Judge0LimitConfig extends RateLimitConfig {
+  dailyMax?: number;
+  maxConcurrent?: number;
 }
 
 export const GLOBAL_LIMIT_CONFIG: RateLimitConfig = {
@@ -52,8 +58,10 @@ export const AUTH_LIMITS_CONFIG = {
   },
 } as const;
 
-export const JUDGE0_LIMIT_CONFIG: RateLimitConfig = {
+export const JUDGE0_LIMIT_CONFIG: Judge0LimitConfig = {
   windowMs: 60 * 1000, // 1 minute
   max: 5,
   message: 'Too many code submissions. Please wait before submitting again.',
+  dailyMax: 50, // 50 submissions per day per user
+  maxConcurrent: 1, // Only 1 submission can run at a time
 };
