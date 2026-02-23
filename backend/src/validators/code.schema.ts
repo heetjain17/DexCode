@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const supportedLanguages = ['PYTHON', 'JAVA', 'JAVASCRIPT'] as const;
+export const supportedLanguages = ['PYTHON', 'JAVA', 'JAVASCRIPT', 'CPP'] as const;
 
 export type SupportedLanguage = (typeof supportedLanguages)[number];
 

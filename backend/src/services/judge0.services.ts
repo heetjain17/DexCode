@@ -7,6 +7,7 @@ export const LANGUAGE_MAP = {
   PYTHON: 71,
   JAVA: 62,
   JAVASCRIPT: 63,
+  CPP: 54,
 } as const;
 
 export type LanguageKey = keyof typeof LANGUAGE_MAP;
@@ -18,6 +19,7 @@ export const getLanguageName = (id: number): string => {
     71: 'Python',
     62: 'Java',
     63: 'JavaScript',
+    54: 'C++',
   };
   return map[id] ?? 'Unknown';
 };

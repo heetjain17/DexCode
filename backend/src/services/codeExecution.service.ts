@@ -1,4 +1,5 @@
 import { ApiError } from '@/utils/ApiError';
+import { ExecutionResponse, Judge0Result } from '@/validators/code.schema';
 import { pollBatchResults, submitBatch } from './judge0.services';
 
 interface Testcase {
@@ -10,7 +11,7 @@ export const executeCodeAgainstTestcases = async (
   sourceCode: string,
   languageId: number,
   testcases: Testcase[]
-) => {
+): Promise<ExecutionResponse> => {
   if (!Array.isArray(testcases) || testcases.length === 0) {
     throw new ApiError(400, 'Invalid or empty testcases');
   }
@@ -21,22 +22,19 @@ export const executeCodeAgainstTestcases = async (
     stdin: tc.input,
   }));
 
-  console.log(submissions);
-
   const submitResponse = await submitBatch(submissions);
-  const tokens = submitResponse.map((r: any) => r.token);
+  const tokens = submitResponse.map((r) => r.token);
 
   const results = await pollBatchResults(tokens);
 
   let allPassed = true;
 
-  const detailedResults = results.map((r: any, i: number) => {
+  const detailedResults = results.map((r: Judge0Result, i: number) => {
     const stdout = r.stdout?.trim() ?? '';
     const expected = testcases[i].output.trim();
     const passed = stdout === expected;
 
     if (!passed) allPassed = false;
-    console.log(r.message, r.stderr);
 
     return {
       testCase: i + 1,
@@ -44,7 +42,7 @@ export const executeCodeAgainstTestcases = async (
       stdout,
       expected,
       status: r.status.description,
-      memory: r.memory,
+      memory: r.memory?.toString(),
       time: r.time,
       stderr: r.stderr,
       compileOutput: r.compile_output,
