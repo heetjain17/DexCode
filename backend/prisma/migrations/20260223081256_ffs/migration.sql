@@ -1,38 +1,9 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('USER', 'ADMIN');
 
-  - You are about to drop the column `codeSnippets` on the `Problem` table. All the data in the column will be lost.
-  - You are about to drop the column `companies` on the `Problem` table. All the data in the column will be lost.
-  - You are about to drop the column `constraints` on the `Problem` table. All the data in the column will be lost.
-  - You are about to drop the column `examples` on the `Problem` table. All the data in the column will be lost.
-  - You are about to drop the column `hints` on the `Problem` table. All the data in the column will be lost.
-  - You are about to drop the column `referenceSolutions` on the `Problem` table. All the data in the column will be lost.
-  - You are about to drop the column `tags` on the `Problem` table. All the data in the column will be lost.
-  - You are about to drop the column `testcases` on the `Problem` table. All the data in the column will be lost.
-  - You are about to drop the column `playListId` on the `ProblemInPlaylist` table. All the data in the column will be lost.
-  - You are about to drop the column `compileOutput` on the `Submission` table. All the data in the column will be lost.
-  - You are about to drop the column `memory` on the `Submission` table. All the data in the column will be lost.
-  - You are about to drop the column `sourceCode` on the `Submission` table. All the data in the column will be lost.
-  - You are about to drop the column `stderr` on the `Submission` table. All the data in the column will be lost.
-  - You are about to drop the column `stdin` on the `Submission` table. All the data in the column will be lost.
-  - You are about to drop the column `stdout` on the `Submission` table. All the data in the column will be lost.
-  - You are about to drop the column `time` on the `Submission` table. All the data in the column will be lost.
-  - You are about to drop the column `memory` on the `TestCaseResult` table. All the data in the column will be lost.
-  - You are about to drop the column `stdout` on the `TestCaseResult` table. All the data in the column will be lost.
-  - You are about to drop the column `time` on the `TestCaseResult` table. All the data in the column will be lost.
-  - A unique constraint covering the columns `[userId,slug]` on the table `Playlist` will be added. If there are existing duplicate values, this will fail.
-  - A unique constraint covering the columns `[slug]` on the table `Problem` will be added. If there are existing duplicate values, this will fail.
-  - A unique constraint covering the columns `[playlistId,problemId]` on the table `ProblemInPlaylist` will be added. If there are existing duplicate values, this will fail.
-  - Added the required column `slug` to the `Playlist` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `slug` to the `Problem` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `order` to the `ProblemInPlaylist` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `playlistId` to the `ProblemInPlaylist` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `code` to the `Submission` table without a default value. This is not possible if the table is not empty.
-  - Changed the type of `language` on the `Submission` table. No cast exists, the column would be dropped and recreated, which cannot be done if there is data, since the column is required.
-  - Changed the type of `status` on the `Submission` table. No cast exists, the column would be dropped and recreated, which cannot be done if there is data, since the column is required.
-  - Changed the type of `status` on the `TestCaseResult` table. No cast exists, the column would be dropped and recreated, which cannot be done if there is data, since the column is required.
+-- CreateEnum
+CREATE TYPE "Difficulty" AS ENUM ('EASY', 'MEDIUM', 'HARD');
 
-*/
 -- CreateEnum
 CREATE TYPE "SubmissionStatus" AS ENUM ('PENDING', 'RUNNING', 'ACCEPTED', 'WRONG_ANSWER', 'TIME_LIMIT_EXCEEDED', 'MEMORY_LIMIT_EXCEEDED', 'RUNTIME_ERROR', 'COMPILATION_ERROR', 'INTERNAL_ERROR');
 
@@ -42,76 +13,73 @@ CREATE TYPE "ProgrammingLanguage" AS ENUM ('JAVA', 'PYTHON', 'JAVASCRIPT', 'CPP'
 -- CreateEnum
 CREATE TYPE "TestCaseStatus" AS ENUM ('PASSED', 'FAILED', 'SKIPPED', 'ERROR');
 
--- DropForeignKey
-ALTER TABLE "ProblemInPlaylist" DROP CONSTRAINT "ProblemInPlaylist_playListId_fkey";
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "image" TEXT,
+    "name" TEXT,
+    "email" TEXT NOT NULL,
+    "role" "UserRole" NOT NULL DEFAULT 'USER',
+    "password" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "emailVerificationExpiry" TIMESTAMP(3),
+    "emailVerificationToken" TEXT,
+    "forgotPasswordExpiry" TIMESTAMP(3),
+    "forgotPasswordToken" TEXT,
+    "isEmailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "refreshToken" TEXT,
+    "provider" TEXT NOT NULL DEFAULT 'CREDENTAILS',
 
--- DropIndex
-DROP INDEX "Playlist_name_userId_key";
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
--- DropIndex
-DROP INDEX "ProblemInPlaylist_playListId_problemId_key";
+-- CreateTable
+CREATE TABLE "Profile" (
+    "id" TEXT NOT NULL DEFAULT (gen_random_uuid())::text,
+    "userId" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "displayName" TEXT,
+    "avatarUrl" TEXT,
+    "bio" TEXT,
+    "location" TEXT,
+    "website" TEXT,
+    "socialLinks" JSONB,
+    "problemsSolved" INTEGER DEFAULT 0,
+    "easySolved" INTEGER DEFAULT 0,
+    "mediumSolved" INTEGER DEFAULT 0,
+    "hardSolved" INTEGER DEFAULT 0,
+    "currentStreak" INTEGER DEFAULT 0,
+    "longestStreak" INTEGER DEFAULT 0,
+    "lastSolvedAt" TIMESTAMP(6),
+    "totalSubmissions" INTEGER DEFAULT 0,
+    "acceptedSubmissions" INTEGER DEFAULT 0,
+    "createdAt" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
 
--- AlterTable
-ALTER TABLE "Playlist" ADD COLUMN     "isPublic" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "problemCount" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "slug" TEXT NOT NULL;
+    CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
+);
 
--- AlterTable
-ALTER TABLE "Problem" DROP COLUMN "codeSnippets",
-DROP COLUMN "companies",
-DROP COLUMN "constraints",
-DROP COLUMN "examples",
-DROP COLUMN "hints",
-DROP COLUMN "referenceSolutions",
-DROP COLUMN "tags",
-DROP COLUMN "testcases",
-ADD COLUMN     "acceptanceRate" DECIMAL(5,2),
-ADD COLUMN     "dislikes" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "isPublished" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "likes" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "slug" TEXT NOT NULL,
-ADD COLUMN     "successfulSubmissions" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "totalSubmissions" INTEGER NOT NULL DEFAULT 0;
+-- CreateTable
+CREATE TABLE "Problem" (
+    "id" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "difficulty" "Difficulty" NOT NULL,
+    "userId" TEXT NOT NULL,
+    "editorial" TEXT,
+    "isPublished" BOOLEAN NOT NULL DEFAULT false,
+    "totalSubmissions" INTEGER NOT NULL DEFAULT 0,
+    "successfulSubmissions" INTEGER NOT NULL DEFAULT 0,
+    "acceptanceRate" DECIMAL(5,2),
+    "likes" INTEGER NOT NULL DEFAULT 0,
+    "dislikes" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
--- AlterTable
-ALTER TABLE "ProblemInPlaylist" DROP COLUMN "playListId",
-ADD COLUMN     "order" INTEGER NOT NULL,
-ADD COLUMN     "playlistId" TEXT NOT NULL;
-
--- AlterTable
-ALTER TABLE "ProblemSolved" ADD COLUMN     "attemptCount" INTEGER NOT NULL DEFAULT 1,
-ADD COLUMN     "bestSubmissionId" TEXT,
-ADD COLUMN     "solvedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
-
--- AlterTable
-ALTER TABLE "Submission" DROP COLUMN "compileOutput",
-DROP COLUMN "memory",
-DROP COLUMN "sourceCode",
-DROP COLUMN "stderr",
-DROP COLUMN "stdin",
-DROP COLUMN "stdout",
-DROP COLUMN "time",
-ADD COLUMN     "code" TEXT NOT NULL,
-ADD COLUMN     "executionTime" INTEGER,
-ADD COLUMN     "memoryUsed" INTEGER,
-ADD COLUMN     "score" DECIMAL(5,2),
-ADD COLUMN     "verdict" TEXT,
-DROP COLUMN "language",
-ADD COLUMN     "language" "ProgrammingLanguage" NOT NULL,
-DROP COLUMN "status",
-ADD COLUMN     "status" "SubmissionStatus" NOT NULL;
-
--- AlterTable
-ALTER TABLE "TestCaseResult" DROP COLUMN "memory",
-DROP COLUMN "stdout",
-DROP COLUMN "time",
-ADD COLUMN     "executionTime" INTEGER,
-ADD COLUMN     "input" TEXT,
-ADD COLUMN     "memoryUsed" INTEGER,
-ADD COLUMN     "output" TEXT,
-ADD COLUMN     "testCaseId" TEXT,
-DROP COLUMN "status",
-ADD COLUMN     "status" "TestCaseStatus" NOT NULL;
+    CONSTRAINT "Problem_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "TestCase" (
@@ -249,6 +217,86 @@ CREATE TABLE "ProblemTopic" (
 );
 
 -- CreateTable
+CREATE TABLE "Submission" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "problemId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "language" "ProgrammingLanguage" NOT NULL,
+    "status" "SubmissionStatus" NOT NULL,
+    "verdict" TEXT,
+    "score" DECIMAL(5,2),
+    "executionTime" INTEGER,
+    "memoryUsed" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Submission_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TestCaseResult" (
+    "id" TEXT NOT NULL,
+    "submissionId" TEXT NOT NULL,
+    "testCaseId" TEXT,
+    "testCase" INTEGER NOT NULL,
+    "status" "TestCaseStatus" NOT NULL,
+    "passed" BOOLEAN NOT NULL,
+    "input" TEXT,
+    "output" TEXT,
+    "expected" TEXT NOT NULL,
+    "stderr" TEXT,
+    "compileOutput" TEXT,
+    "executionTime" INTEGER,
+    "memoryUsed" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "TestCaseResult_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProblemSolved" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "problemId" TEXT NOT NULL,
+    "solvedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "attemptCount" INTEGER NOT NULL DEFAULT 1,
+    "bestSubmissionId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ProblemSolved_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Playlist" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "description" TEXT,
+    "userId" TEXT NOT NULL,
+    "isPublic" BOOLEAN NOT NULL DEFAULT false,
+    "problemCount" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Playlist_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProblemInPlaylist" (
+    "id" TEXT NOT NULL,
+    "playlistId" TEXT NOT NULL,
+    "problemId" TEXT NOT NULL,
+    "order" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ProblemInPlaylist_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Discussion" (
     "id" TEXT NOT NULL,
     "problemId" TEXT NOT NULL,
@@ -314,6 +362,30 @@ CREATE TABLE "ProblemRating" (
 
     CONSTRAINT "ProblemRating_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Profile_username_key" ON "Profile"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Problem_slug_key" ON "Problem"("slug");
+
+-- CreateIndex
+CREATE INDEX "Problem_difficulty_idx" ON "Problem"("difficulty");
+
+-- CreateIndex
+CREATE INDEX "Problem_userId_idx" ON "Problem"("userId");
+
+-- CreateIndex
+CREATE INDEX "Problem_isPublished_idx" ON "Problem"("isPublished");
+
+-- CreateIndex
+CREATE INDEX "Problem_createdAt_idx" ON "Problem"("createdAt");
 
 -- CreateIndex
 CREATE INDEX "TestCase_problemId_idx" ON "TestCase"("problemId");
@@ -394,6 +466,45 @@ CREATE INDEX "ProblemTopic_topicId_idx" ON "ProblemTopic"("topicId");
 CREATE UNIQUE INDEX "ProblemTopic_problemId_topicId_key" ON "ProblemTopic"("problemId", "topicId");
 
 -- CreateIndex
+CREATE INDEX "Submission_userId_idx" ON "Submission"("userId");
+
+-- CreateIndex
+CREATE INDEX "Submission_problemId_idx" ON "Submission"("problemId");
+
+-- CreateIndex
+CREATE INDEX "Submission_status_idx" ON "Submission"("status");
+
+-- CreateIndex
+CREATE INDEX "Submission_userId_problemId_idx" ON "Submission"("userId", "problemId");
+
+-- CreateIndex
+CREATE INDEX "TestCaseResult_submissionId_idx" ON "TestCaseResult"("submissionId");
+
+-- CreateIndex
+CREATE INDEX "ProblemSolved_userId_idx" ON "ProblemSolved"("userId");
+
+-- CreateIndex
+CREATE INDEX "ProblemSolved_problemId_idx" ON "ProblemSolved"("problemId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProblemSolved_userId_problemId_key" ON "ProblemSolved"("userId", "problemId");
+
+-- CreateIndex
+CREATE INDEX "Playlist_userId_idx" ON "Playlist"("userId");
+
+-- CreateIndex
+CREATE INDEX "Playlist_isPublic_idx" ON "Playlist"("isPublic");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Playlist_userId_slug_key" ON "Playlist"("userId", "slug");
+
+-- CreateIndex
+CREATE INDEX "ProblemInPlaylist_playlistId_order_idx" ON "ProblemInPlaylist"("playlistId", "order");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProblemInPlaylist_playlistId_problemId_key" ON "ProblemInPlaylist"("playlistId", "problemId");
+
+-- CreateIndex
 CREATE INDEX "Discussion_problemId_idx" ON "Discussion"("problemId");
 
 -- CreateIndex
@@ -420,53 +531,11 @@ CREATE INDEX "ProblemRating_problemId_idx" ON "ProblemRating"("problemId");
 -- CreateIndex
 CREATE UNIQUE INDEX "ProblemRating_problemId_userId_key" ON "ProblemRating"("problemId", "userId");
 
--- CreateIndex
-CREATE INDEX "Playlist_userId_idx" ON "Playlist"("userId");
+-- AddForeignKey
+ALTER TABLE "Profile" ADD CONSTRAINT "profile_user_fk" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
--- CreateIndex
-CREATE INDEX "Playlist_isPublic_idx" ON "Playlist"("isPublic");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Playlist_userId_slug_key" ON "Playlist"("userId", "slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Problem_slug_key" ON "Problem"("slug");
-
--- CreateIndex
-CREATE INDEX "Problem_difficulty_idx" ON "Problem"("difficulty");
-
--- CreateIndex
-CREATE INDEX "Problem_userId_idx" ON "Problem"("userId");
-
--- CreateIndex
-CREATE INDEX "Problem_isPublished_idx" ON "Problem"("isPublished");
-
--- CreateIndex
-CREATE INDEX "Problem_createdAt_idx" ON "Problem"("createdAt");
-
--- CreateIndex
-CREATE INDEX "ProblemInPlaylist_playlistId_order_idx" ON "ProblemInPlaylist"("playlistId", "order");
-
--- CreateIndex
-CREATE UNIQUE INDEX "ProblemInPlaylist_playlistId_problemId_key" ON "ProblemInPlaylist"("playlistId", "problemId");
-
--- CreateIndex
-CREATE INDEX "ProblemSolved_userId_idx" ON "ProblemSolved"("userId");
-
--- CreateIndex
-CREATE INDEX "ProblemSolved_problemId_idx" ON "ProblemSolved"("problemId");
-
--- CreateIndex
-CREATE INDEX "Submission_userId_idx" ON "Submission"("userId");
-
--- CreateIndex
-CREATE INDEX "Submission_problemId_idx" ON "Submission"("problemId");
-
--- CreateIndex
-CREATE INDEX "Submission_status_idx" ON "Submission"("status");
-
--- CreateIndex
-CREATE INDEX "Submission_userId_problemId_idx" ON "Submission"("userId", "problemId");
+-- AddForeignKey
+ALTER TABLE "Problem" ADD CONSTRAINT "Problem_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TestCase" ADD CONSTRAINT "TestCase_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "Problem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -502,7 +571,28 @@ ALTER TABLE "ProblemTopic" ADD CONSTRAINT "ProblemTopic_problemId_fkey" FOREIGN 
 ALTER TABLE "ProblemTopic" ADD CONSTRAINT "ProblemTopic_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "Topic"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Submission" ADD CONSTRAINT "Submission_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "Problem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Submission" ADD CONSTRAINT "Submission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TestCaseResult" ADD CONSTRAINT "TestCaseResult_submissionId_fkey" FOREIGN KEY ("submissionId") REFERENCES "Submission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProblemSolved" ADD CONSTRAINT "ProblemSolved_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "Problem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProblemSolved" ADD CONSTRAINT "ProblemSolved_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Playlist" ADD CONSTRAINT "Playlist_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ProblemInPlaylist" ADD CONSTRAINT "ProblemInPlaylist_playlistId_fkey" FOREIGN KEY ("playlistId") REFERENCES "Playlist"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProblemInPlaylist" ADD CONSTRAINT "ProblemInPlaylist_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "Problem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Discussion" ADD CONSTRAINT "Discussion_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "Problem"("id") ON DELETE CASCADE ON UPDATE CASCADE;
