@@ -6,18 +6,8 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.post(
-  '/run',
-  requireAuth,
-  validate({ body: runCodeSchema }),
-  runCodePreview
-);
+router.post('/run', requireAuth, validate({ body: runCodeSchema }), runCodePreview);
 
-router.post(
-  '/submit',
-  requireAuth,
-  validate({ body: runCodeSchema }),
-  submitCode
-);
+router.post('/submit', requireAuth, validate({ body: runCodeSchema }), submitCode);
 
 export default router;

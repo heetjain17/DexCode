@@ -1,4 +1,4 @@
 node_modules
-prisma
+dist
+drizzle
 .env
-./src/generated

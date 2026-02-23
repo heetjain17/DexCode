@@ -6,11 +6,7 @@ import { getEnv } from '../utils/env';
 import { db } from '../libs/db';
 import { users } from '../db/schema';
 
-export const requireAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.accessToken;
 
   if (!token) {

@@ -6,8 +6,7 @@ export const LANGUAGE_MAP = {
 
 export type LanguageKey = keyof typeof LANGUAGE_MAP;
 
-export const getLanguageId = (language: LanguageKey): number =>
-  LANGUAGE_MAP[language];
+export const getLanguageId = (language: LanguageKey): number => LANGUAGE_MAP[language];
 
 export const getLanguageName = (id: number): string => {
   const map: Record<number, string> = {

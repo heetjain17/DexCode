@@ -10,7 +10,7 @@ export const createProblem = asyncHandler(async (req, res) => {
 
   res.status(201).json(apiSuccess(201, 'Problem created', problem));
 });
-export const getAllProblems = asyncHandler(async (req, res) => {});
-export const getProblem = asyncHandler(async (req, res) => {});
-export const updateProblem = asyncHandler(async (req, res) => {});
-export const deleteProblem = asyncHandler(async (req, res) => {});
+export const getAllProblems = asyncHandler(async (_req, _res) => {});
+export const getProblem = asyncHandler(async (_req, _res) => {});
+export const updateProblem = asyncHandler(async (_req, _res) => {});
+export const deleteProblem = asyncHandler(async (_req, _res) => {});

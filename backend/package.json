@@ -1,9 +1,35 @@
 {
-  "name": "backend",
+  "name": "@dexcode/backend",
   "version": "1.0.0",
   "type": "module",
   "main": "src/index.js",
+  "description": "DexCode Backend - A full-stack competitive programming platform with real-time code execution, judging, and social features.",
+  "keywords": [
+    "competitive-programming",
+    "leetcode",
+    "judge",
+    "coding-platform",
+    "online-judge",
+    "express",
+    "drizzle-orm",
+    "postgresql"
+  ],
+  "author": {
+    "name": "DexCode Contributors",
+    "url": "https://github.com/heetjain17/DEXCODE"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heetjain17/DEXCODE.git",
+    "directory": "backend"
+  },
+  "homepage": "https://github.com/heetjain17/DEXCODE#readme",
+  "bugs": {
+    "url": "https://github.com/heetjain17/DEXCODE/issues"
+  },
   "scripts": {
+    "prepr": "npm run lint:fix && npm run format",
     "dev": "tsx watch src/index.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -15,10 +41,6 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/db/seed.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
@@ -36,6 +58,7 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
@@ -44,9 +67,12 @@
     "@types/nodemailer": "^7.0.4",
     "@types/pg": "^8.16.0",
     "drizzle-kit": "^0.31.9",
+    "eslint": "^10.0.1",
+    "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.0"
   }
 }

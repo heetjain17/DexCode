@@ -7,25 +7,18 @@ const JUDGE0_URL = getEnv('JUDGE0_URL');
 export const submitBatch = async (
   submissions: Judge0Submission[]
 ): Promise<{ token: string }[]> => {
-  const { data } = await axios.post(
-    `${JUDGE0_URL}/submissions/batch?base64_encoded=false`,
-    {
-      submissions: submissions.map((s) => ({
-        source_code: s.source_code,
-        language_id: s.language_id,
-        stdin: s.stdin,
-        base64_encoded: false,
-      })),
-    }
-  );
+  const { data } = await axios.post(`${JUDGE0_URL}/submissions/batch?base64_encoded=false`, {
+    submissions: submissions.map((s) => ({
+      source_code: s.source_code,
+      language_id: s.language_id,
+      stdin: s.stdin,
+      base64_encoded: false,
+    })),
+  });
   return data;
 };
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-export const pollBatchResults = async (
-  tokens: string[]
-): Promise<Judge0Result[]> => {
+export const pollBatchResults = async (tokens: string[]): Promise<Judge0Result[]> => {
   const MAX_ATTEMPTS = 30; // ~30 seconds
   let attempts = 0;
   while (attempts < MAX_ATTEMPTS) {

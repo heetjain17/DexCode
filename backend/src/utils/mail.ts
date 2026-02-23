@@ -49,10 +49,7 @@ export const sendMail = async (options: sendMailOptions) => {
   }
 };
 
-export const emailVerificationContent = (
-  username: string,
-  verificationUrl: string
-) => {
+export const emailVerificationContent = (username: string, verificationUrl: string) => {
   return {
     body: {
       name: username,
@@ -66,15 +63,11 @@ export const emailVerificationContent = (
         },
       },
     },
-    outro:
-      "Need help, or have questions? Just reply to this email, we'd love to help.",
+    outro: "Need help, or have questions? Just reply to this email, we'd love to help.",
   };
 };
 
-export const forgotPasswordContent = (
-  username: string,
-  resetPasswordUrl: string
-) => {
+export const forgotPasswordContent = (username: string, resetPasswordUrl: string) => {
   return {
     body: {
       name: username,
@@ -88,7 +81,6 @@ export const forgotPasswordContent = (
         },
       },
     },
-    outro:
-      "Need help, or have questions? Just reply to this email, we'd love to help.",
+    outro: "Need help, or have questions? Just reply to this email, we'd love to help.",
   };
 };

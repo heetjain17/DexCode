@@ -3,21 +3,13 @@ import { executeCodeAgainstTestcases } from '@/services/codeExecution.service';
 import { ApiError, apiSuccess } from '@/utils/ApiError';
 import { asyncHandler } from '@/utils/asyncHandler';
 import { db } from '@/libs/db';
-import {
-  problems,
-  submissions,
-  testCaseResults,
-  problemSolved,
-} from '@/db/schema';
+import { problems, submissions, testCaseResults, problemSolved } from '@/db/schema';
 import { RunCodeDTO } from '@/validators/code.schema';
 import { getLanguageId } from '@/libs/judge0.client';
 
 type TestCaseStatusValue = 'PASSED' | 'FAILED' | 'ERROR';
 
-function toTestCaseStatus(
-  passed: boolean,
-  statusDescription: string
-): TestCaseStatusValue {
+function toTestCaseStatus(passed: boolean, statusDescription: string): TestCaseStatusValue {
   if (passed) return 'PASSED';
   const s = statusDescription.toLowerCase();
   if (s.includes('error') || s.includes('compilation')) return 'ERROR';
@@ -54,8 +46,7 @@ export const runCodePreview = asyncHandler(async (req, res) => {
 });
 
 export const submitCode = asyncHandler(async (req, res) => {
-  const { source_code, language, problemId } = req.validated!
-    .body as RunCodeDTO;
+  const { source_code, language, problemId } = req.validated!.body as RunCodeDTO;
   const userId = req.user!.id;
 
   const problem = await db.query.problems.findFirst({
@@ -86,9 +77,7 @@ export const submitCode = asyncHandler(async (req, res) => {
   const executionTime = Math.max(
     ...detailedResults.map((r) => Math.round(parseFloat(r.time ?? '0') * 1000))
   );
-  const memoryUsed = Math.max(
-    ...detailedResults.map((r) => (r.memory as number) ?? 0)
-  );
+  const memoryUsed = Math.max(...detailedResults.map((r) => (r.memory as number) ?? 0));
 
   const [submission] = await db
     .insert(submissions)

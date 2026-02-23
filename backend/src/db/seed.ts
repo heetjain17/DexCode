@@ -189,9 +189,22 @@ async function main() {
     if (fields.length < 16) continue;
 
     const [
-      _id, title, description, difficultyStr, tagsStr, _userIdStr, examplesStr, editorialStr,
-      testcasesStr, codeSnippetsStr, referenceSolutionsStr, _createdAt, _updatedAt,
-      constraintsStr, companiesStr, hintsStr,
+      _id,
+      title,
+      description,
+      difficultyStr,
+      tagsStr,
+      _userIdStr,
+      examplesStr,
+      editorialStr,
+      testcasesStr,
+      codeSnippetsStr,
+      referenceSolutionsStr,
+      _createdAt,
+      _updatedAt,
+      constraintsStr,
+      companiesStr,
+      hintsStr,
     ] = fields;
 
     const slug = title
@@ -199,8 +212,7 @@ async function main() {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '');
 
-    const diff =
-      difficultyStr === 'HARD' ? 'HARD' : difficultyStr === 'EASY' ? 'EASY' : 'MEDIUM';
+    const diff = difficultyStr === 'HARD' ? 'HARD' : difficultyStr === 'EASY' ? 'EASY' : 'MEDIUM';
 
     // ── Problem ──────────────────────────────────────────────────────────────
     const [problem] = await db

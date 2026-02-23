@@ -11,7 +11,7 @@ class ApiError extends Error {
   }
 }
 
-export const errorHandler = (err: Error | ApiError | ZodError) => {};
+export const errorHandler = (_err: Error | ApiError | ZodError) => {};
 
 export function apiSuccess(
   statusCode: number,

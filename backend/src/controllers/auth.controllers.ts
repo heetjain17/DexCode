@@ -39,13 +39,7 @@ export const register = asyncHandler(async (req, res) => {
   const user = await registerService(data);
   res
     .status(201)
-    .json(
-      apiSuccess(
-        201,
-        'User registered successfully, Verify your email first',
-        user
-      )
-    );
+    .json(apiSuccess(201, 'User registered successfully, Verify your email first', user));
 });
 
 export const verify = asyncHandler(async (req, res) => {
@@ -64,8 +58,7 @@ export const resendEmail = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
   const data = req.validated!.body as LoginSchemaDTO;
   const user = await loginService(data);
-  const { accessToken, refreshToken } =
-    await generateAccessandRefreshTokenService(user.id);
+  const { accessToken, refreshToken } = await generateAccessandRefreshTokenService(user.id);
   res
     .cookie('accessToken', accessToken, accessTokenOptions)
     .cookie('refreshToken', refreshToken, refreshTokenOptions)
@@ -85,8 +78,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   if (!incomingRefToken) {
     throw new ApiError(401, 'Refresh token missing');
   }
-  const { accessToken, refreshToken } =
-    await refreshAccessTokenService(incomingRefToken);
+  const { accessToken, refreshToken } = await refreshAccessTokenService(incomingRefToken);
   res
     .cookie('accessToken', accessToken, accessTokenOptions)
     .cookie('refreshToken', refreshToken, refreshTokenOptions)
@@ -114,8 +106,7 @@ export const googleOAuthCallback = asyncHandler(async (req, res) => {
   const { code } = req.validated!.query as oAuthSchemaDTO;
   const user = await googleOAuthCallbackService({ code });
 
-  const { accessToken, refreshToken } =
-    await generateAccessandRefreshTokenService(user.id);
+  const { accessToken, refreshToken } = await generateAccessandRefreshTokenService(user.id);
   res
     .cookie('accessToken', accessToken, accessTokenOptions)
     .cookie('refreshToken', refreshToken, refreshTokenOptions);
@@ -132,8 +123,7 @@ export const githubOAuthCallback = asyncHandler(async (req, res) => {
   const { code } = req.validated!.query as oAuthSchemaDTO;
   const user = await githubOAuthCallbackService({ code });
 
-  const { accessToken, refreshToken } =
-    await generateAccessandRefreshTokenService(user.id);
+  const { accessToken, refreshToken } = await generateAccessandRefreshTokenService(user.id);
   res
     .cookie('accessToken', accessToken, accessTokenOptions)
     .cookie('refreshToken', refreshToken, refreshTokenOptions);

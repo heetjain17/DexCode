@@ -19,8 +19,7 @@ import type {
   VerifyEmailDTO,
 } from '../validators/auth.schema';
 
-const hashToken = (token: string) =>
-  crypto.createHash('sha256').update(token).digest('hex');
+const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
 
 const generateUniqueUsername = async (base: string) => {
   let username = base.toLowerCase();
@@ -39,11 +38,7 @@ const generateUniqueUsername = async (base: string) => {
   return username;
 };
 
-export const registerService = async ({
-  email,
-  username,
-  password,
-}: RegisterDto) => {
+export const registerService = async ({ email, username, password }: RegisterDto) => {
   const existingUser = await db.query.users.findFirst({
     where: eq(users.email, email),
   });
@@ -67,10 +62,7 @@ export const registerService = async ({
       })
       .returning();
 
-    const [p] = await tx
-      .insert(profiles)
-      .values({ userId: u.id, username })
-      .returning();
+    const [p] = await tx.insert(profiles).values({ userId: u.id, username }).returning();
 
     return { newUser: u, profile: p };
   });
@@ -80,10 +72,7 @@ export const registerService = async ({
     await sendMail({
       email: newUser.email,
       subject: 'Email verification',
-      mailGenContent: emailVerificationContent(
-        profile.username,
-        verificationUrl
-      ),
+      mailGenContent: emailVerificationContent(profile.username, verificationUrl),
     });
   } catch (err) {
     console.error('Failed to send verification email', err);
@@ -96,9 +85,7 @@ export const registerService = async ({
   };
 };
 
-export const verifyService = async ({
-  emailVerificationToken,
-}: VerifyEmailDTO) => {
+export const verifyService = async ({ emailVerificationToken }: VerifyEmailDTO) => {
   const user = await db.query.users.findFirst({
     where: eq(users.emailVerificationToken, emailVerificationToken),
   });
@@ -111,10 +98,7 @@ export const verifyService = async ({
     throw new ApiError(400, 'Email already verified');
   }
 
-  if (
-    user.emailVerificationExpiry &&
-    user.emailVerificationExpiry < new Date()
-  ) {
+  if (user.emailVerificationExpiry && user.emailVerificationExpiry < new Date()) {
     throw new ApiError(410, 'Verification token has expired');
   }
 
@@ -128,9 +112,7 @@ export const verifyService = async ({
     .where(eq(users.id, user.id));
 };
 
-export const resendEmailVerificationService = async ({
-  email,
-}: ResendEmailVerficationDTO) => {
+export const resendEmailVerificationService = async ({ email }: ResendEmailVerficationDTO) => {
   const user = await db.query.users.findFirst({
     where: eq(users.email, email),
   });
@@ -143,10 +125,7 @@ export const resendEmailVerificationService = async ({
     throw new ApiError(400, 'Email is already verified');
   }
 
-  if (
-    user.emailVerificationExpiry &&
-    user.emailVerificationExpiry > new Date()
-  ) {
+  if (user.emailVerificationExpiry && user.emailVerificationExpiry > new Date()) {
     throw new ApiError(429, 'Email already sent. Please wait or check spam');
   }
 
@@ -169,20 +148,14 @@ export const resendEmailVerificationService = async ({
     await sendMail({
       email: updatedUser.email,
       subject: 'Email verification',
-      mailGenContent: emailVerificationContent(
-        profile?.username ?? 'User',
-        verificationUrl
-      ),
+      mailGenContent: emailVerificationContent(profile?.username ?? 'User', verificationUrl),
     });
   } catch (err) {
     console.error('Failed to send verification email', err);
   }
 };
 
-export const loginService = async ({
-  identifier,
-  password,
-}: LoginSchemaDTO) => {
+export const loginService = async ({ identifier, password }: LoginSchemaDTO) => {
   const result = await db
     .select({ user: users, profile: profiles })
     .from(users)
@@ -266,10 +239,7 @@ export const refreshAccessTokenService = async (incomingRefToken: string) => {
   const incomingHash = hashToken(incomingRefToken);
 
   if (incomingHash !== user.refreshToken) {
-    await db
-      .update(users)
-      .set({ refreshToken: null })
-      .where(eq(users.id, user.id));
+    await db.update(users).set({ refreshToken: null }).where(eq(users.id, user.id));
     throw new ApiError(401, 'Refresh token reuse detected');
   }
 
@@ -281,36 +251,26 @@ export const refreshAccessTokenService = async (incomingRefToken: string) => {
 };
 
 export const logoutService = async (userId: string) => {
-  await db
-    .update(users)
-    .set({ refreshToken: null })
-    .where(eq(users.id, userId));
+  await db.update(users).set({ refreshToken: null }).where(eq(users.id, userId));
 };
 
 export const googleOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
-  const tokenRes = await axios.post(
-    `https://oauth2.googleapis.com/token`,
-    null,
-    {
-      params: {
-        code,
-        client_id: getEnv('GOOGLE_CLIENT_ID'),
-        client_secret: getEnv('GOOGLE_CLIENT_SECRET'),
-        redirect_uri: getEnv('GOOGLE_REDIRECT_URI'),
-        grant_type: 'authorization_code',
-      },
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    }
-  );
+  const tokenRes = await axios.post(`https://oauth2.googleapis.com/token`, null, {
+    params: {
+      code,
+      client_id: getEnv('GOOGLE_CLIENT_ID'),
+      client_secret: getEnv('GOOGLE_CLIENT_SECRET'),
+      redirect_uri: getEnv('GOOGLE_REDIRECT_URI'),
+      grant_type: 'authorization_code',
+    },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  });
 
   const googleAccessToken = tokenRes.data.access_token;
 
-  const userInfoRes = await axios.get(
-    `https://www.googleapis.com/oauth2/v3/userinfo`,
-    {
-      headers: { Authorization: `Bearer ${googleAccessToken}` },
-    }
-  );
+  const userInfoRes = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
+    headers: { Authorization: `Bearer ${googleAccessToken}` },
+  });
   const userInfo = userInfoRes.data;
 
   let user = await db.query.users.findFirst({
@@ -362,12 +322,9 @@ export const githubOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
     headers: { Authorization: `Bearer ${githubAccessToken}` },
   });
 
-  const emailRes = await axios.get<GitHubEmail[]>(
-    `https://api.github.com/user/emails`,
-    {
-      headers: { Authorization: `Bearer ${githubAccessToken}` },
-    }
-  );
+  const emailRes = await axios.get<GitHubEmail[]>(`https://api.github.com/user/emails`, {
+    headers: { Authorization: `Bearer ${githubAccessToken}` },
+  });
 
   const emailObj = emailRes.data.find((e) => e.primary && e.verified);
   const email = emailObj?.email;

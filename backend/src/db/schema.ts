@@ -567,35 +567,37 @@ export const discussionComments = pgTable(
   ]
 );
 
-export const discussionVotes = pgTable('DiscussionVote', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  discussionId: uuid('discussionId')
-    .notNull()
-    .references(() => discussions.id, { onDelete: 'cascade' }),
-  userId: uuid('userId')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  value: integer('value').notNull(),
-  createdAt: timestamp('createdAt').defaultNow().notNull(),
-},
-(t) => [
-  uniqueIndex('discussionvote_discussionId_userId_idx').on(t.discussionId, t.userId),
-]);
+export const discussionVotes = pgTable(
+  'DiscussionVote',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    discussionId: uuid('discussionId')
+      .notNull()
+      .references(() => discussions.id, { onDelete: 'cascade' }),
+    userId: uuid('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    value: integer('value').notNull(),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex('discussionvote_discussionId_userId_idx').on(t.discussionId, t.userId)]
+);
 
-export const commentVotes = pgTable('CommentVote', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  commentId: uuid('commentId')
-    .notNull()
-    .references(() => discussionComments.id, { onDelete: 'cascade' }),
-  userId: uuid('userId')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  value: integer('value').notNull(),
-  createdAt: timestamp('createdAt').defaultNow().notNull(),
-},
-(t) => [
-  uniqueIndex('commentvote_commentId_userId_idx').on(t.commentId, t.userId),
-]);
+export const commentVotes = pgTable(
+  'CommentVote',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    commentId: uuid('commentId')
+      .notNull()
+      .references(() => discussionComments.id, { onDelete: 'cascade' }),
+    userId: uuid('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    value: integer('value').notNull(),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex('commentvote_commentId_userId_idx').on(t.commentId, t.userId)]
+);
 
 // ============================================
 // RATING SYSTEM

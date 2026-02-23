@@ -8,8 +8,7 @@ type ValidationSchemas = {
 };
 
 export const validate =
-  (schemas: ValidationSchemas) =>
-  (req: Request, _res: Response, next: NextFunction) => {
+  (schemas: ValidationSchemas) => (req: Request, _res: Response, next: NextFunction) => {
     try {
       req.validated = {};
 

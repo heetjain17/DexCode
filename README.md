@@ -1,8 +1,18 @@
 # DexCode
 
-A full-stack competitive programming platform — think LeetCode, built from scratch.
+> **Master competitive programming. Write code in the browser. Get instant feedback. Compete globally.**
 
-Users can browse problems, write code in the browser, run it against example test cases, submit for full grading, and track their solving history. Admins can create and manage problems.
+DexCode is a full-stack, open-source competitive programming platform that combines the problem-solving depth of LeetCode with a modern, developer-first architecture. Built with TypeScript, Express, Drizzle ORM, and PostgreSQL.
+
+## Features
+
+- **Code Execution**: Write and run code in your browser against example test cases in real-time
+- **Real-time Judging**: Submit solutions for automated grading against all test cases via Judge0
+- **Progress Tracking**: Track submissions, solved problems, and build your portfolio
+- **Social Features**: Discuss solutions, rate problems, and learn from the community
+- **Playlists**: Curate problem sets for focused learning
+- **Multi-method Auth**: Secure authentication with email + password or OAuth (Google/GitHub)
+- **Admin Dashboard**: Create, manage, and publish problems with tags, companies, and difficulty levels
 
 ---
 
@@ -196,3 +206,34 @@ Errors:
 | Playlists                | WIP    |
 | Discussions              | WIP    |
 | Admin problem management | WIP    |
+
+---
+
+## Contributing
+
+We welcome contributions! See [`Contributing.md`](Contributing.md) for detailed instructions on setup, branching, code style, and pull request guidelines.
+
+### Quick Start
+
+```bash
+git clone https://github.com/heetjain17/DEXCODE.git
+cd DEXCODE/backend
+npm install && npm run db:push && npm run db:seed
+npm run dev
+```
+
+---
+
+## License
+
+MIT © DexCode Contributors
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/heetjain17/DEXCODE/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/heetjain17/DEXCODE/discussions)
+- **Documentation**: See [`backend/API_DOCS.md`](backend/API_DOCS.md) for API reference
+
+---
+
+Made with by the DexCode community
