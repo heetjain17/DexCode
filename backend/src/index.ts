@@ -12,7 +12,7 @@ import authRoutes from './routes/auth.routes';
 import executionRoutes from './routes/executeCode.routes';
 import problemRoutes from './routes/problem.routes';
 // import playlistRoutes from './routes/playlist.routes';
-// import submissionRoutes from './routes/submission.routes';
+import submissionRoutes from './routes/submission.routes';
 
 const PORT = process.env.PORT || 8080;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -40,7 +40,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/problem', problemRoutes);
 app.use('/api/v1/execute-code', executionRoutes);
-// app.use('/api/v1/submission', submissionRoutes);
+app.use('/api/v1/submission', submissionRoutes);
 // app.use('/api/v1/playlist', playlistRoutes);
 
 // Error handling (must be last)
