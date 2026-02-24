@@ -76,9 +76,36 @@ async function upsertCompanies(names: string[]): Promise<string[]> {
 }
 
 // Create
+export type ProblemValidationFailure = {
+  language: string;
+  details: ExecutionResult[];
+};
+
 export type CreateProblemResult =
   | { success: true; id: string; slug: string }
-  | { success: false; reason: 'execution_failed'; details: ExecutionResult[] };
+  | { success: false; reason: 'execution_failed'; failures: ProblemValidationFailure[] };
+
+async function validateAllSolutions(
+  referenceSolutions: Array<{ language: string; solution: string }>,
+  testcaseIO: Array<{ input: string; output: string }>
+): Promise<{ success: true } | { success: false; failures: ProblemValidationFailure[] }> {
+  const failures: ProblemValidationFailure[] = [];
+
+  for (const rs of referenceSolutions) {
+    const languageId = getLanguageId(rs.language as Parameters<typeof getLanguageId>[0]);
+    const { allPassed, detailedResults } = await executeCodeAgainstTestcases(
+      rs.solution,
+      languageId,
+      testcaseIO
+    );
+
+    if (!allPassed) {
+      failures.push({ language: rs.language, details: detailedResults });
+    }
+  }
+
+  return failures.length > 0 ? { success: false, failures } : { success: true };
+}
 
 export async function createProblemService(
   data: CreateProblemDTO,
@@ -99,19 +126,15 @@ export async function createProblemService(
     referenceSolutions,
   } = data;
 
-  // 1. Validate reference solution against all test cases
-  const refSolution = referenceSolutions[0];
-  const languageId = getLanguageId(refSolution.language);
-  const testcaseIO = testcases.map((tc) => ({ input: tc.input, output: tc.output }));
+  // 1. Validate ALL reference solutions against all test cases + examples
+  const testcaseIO = [
+    ...testcases.map((tc) => ({ input: tc.input, output: tc.output })),
+    ...exampleItems.map((e) => ({ input: e.input, output: e.output })),
+  ];
+  const validation = await validateAllSolutions(referenceSolutions, testcaseIO);
 
-  const { allPassed, detailedResults } = await executeCodeAgainstTestcases(
-    refSolution.solution,
-    languageId,
-    testcaseIO
-  );
-
-  if (!allPassed) {
-    return { success: false, reason: 'execution_failed', details: detailedResults };
+  if (!validation.success) {
+    return { success: false, reason: 'execution_failed', failures: validation.failures };
   }
 
   // 2. Generate slug
@@ -334,12 +357,73 @@ export async function getProblemService(id: string, userId?: string) {
 }
 
 // Update
-export async function updateProblemService(id: string, data: UpdateProblemDTO) {
+export type UpdateProblemResult =
+  | { success: true; id: string; slug: string }
+  | { success: false; reason: 'execution_failed'; failures: ProblemValidationFailure[] };
+
+// Update
+export async function updateProblemService(
+  id: string,
+  data: UpdateProblemDTO
+): Promise<UpdateProblemResult> {
   const existing = await db.query.problems.findFirst({
     where: eq(problems.id, id),
     columns: { id: true, title: true, slug: true },
   });
   if (!existing) throw new ApiError(404, 'Problem not found');
+
+  // Validate if testcases, examples, or reference solutions are being changed
+  const needsValidation = !!(data.testcases || data.examples || data.referenceSolutions);
+  if (needsValidation) {
+    // Use incoming testcases or fall back to existing ones from DB
+    let testcaseIO: Array<{ input: string; output: string }>;
+    if (data.testcases) {
+      testcaseIO = data.testcases.map((tc) => ({ input: tc.input, output: tc.output }));
+    } else {
+      const existingTcs = await db.query.testCases.findMany({
+        where: eq(testCases.problemId, id),
+        columns: { input: true, output: true },
+      });
+      if (existingTcs.length === 0)
+        throw new ApiError(400, 'Problem has no test cases to validate against');
+      testcaseIO = existingTcs.map((tc) => ({ input: tc.input, output: tc.output }));
+    }
+
+    // Use incoming examples or fall back to existing ones from DB
+    let exampleIO: Array<{ input: string; output: string }>;
+    if (data.examples) {
+      exampleIO = data.examples.map((e) => ({ input: e.input, output: e.output }));
+    } else {
+      const existingExamples = await db.query.examples.findMany({
+        where: eq(examples.problemId, id),
+        columns: { input: true, output: true },
+      });
+      exampleIO = existingExamples.map((e) => ({ input: e.input, output: e.output }));
+    }
+
+    const allIO = [...testcaseIO, ...exampleIO];
+
+    // Use incoming reference solutions or fall back to existing ones from DB
+    let solutionsToValidate: Array<{ language: string; solution: string }>;
+    if (data.referenceSolutions) {
+      solutionsToValidate = data.referenceSolutions;
+    } else {
+      const existingTemplates = await db.query.codeTemplates.findMany({
+        where: eq(codeTemplates.problemId, id),
+        columns: { language: true, solution: true },
+      });
+      solutionsToValidate = existingTemplates
+        .filter((t): t is typeof t & { solution: string } => t.solution !== null)
+        .map((t) => ({ language: t.language, solution: t.solution }));
+      if (solutionsToValidate.length === 0)
+        throw new ApiError(400, 'No reference solutions found to validate');
+    }
+
+    const validation = await validateAllSolutions(solutionsToValidate, allIO);
+    if (!validation.success) {
+      return { success: false, reason: 'execution_failed', failures: validation.failures };
+    }
+  }
 
   await db.transaction(async (tx) => {
     // Scalar fields
@@ -448,7 +532,7 @@ export async function updateProblemService(id: string, data: UpdateProblemDTO) {
     columns: { id: true, slug: true },
   });
 
-  return { id: updated!.id, slug: updated!.slug };
+  return { success: true as const, id: updated!.id, slug: updated!.slug };
 }
 
 // Delete

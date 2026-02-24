@@ -22,8 +22,8 @@ export const createProblem = asyncHandler(async (req, res) => {
     res.status(400).json({
       success: false,
       statusCode: 400,
-      message: 'Reference solution failed test cases',
-      data: { details: result.details },
+      message: 'One or more reference solutions failed test cases',
+      data: { failures: result.failures },
     });
     return;
   }
@@ -55,7 +55,17 @@ export const updateProblem = asyncHandler(async (req, res) => {
 
   const result = await updateProblemService(id, data);
 
-  res.status(200).json(apiSuccess(200, 'Problem updated', result));
+  if (!result.success) {
+    res.status(400).json({
+      success: false,
+      statusCode: 400,
+      message: 'One or more reference solutions failed test cases after update',
+      data: { failures: result.failures },
+    });
+    return;
+  }
+
+  res.status(200).json(apiSuccess(200, 'Problem updated', { id: result.id, slug: result.slug }));
 });
 
 export const deleteProblem = asyncHandler(async (req, res) => {
