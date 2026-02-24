@@ -56,6 +56,21 @@ export const AUTH_LIMITS_CONFIG = {
     max: 20,
     message: 'Too many logout attempts. Please try again later.',
   },
+  forgotPassword: {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 3,
+    message: 'Too many password reset requests. Please try again after 1 hour.',
+  },
+  resetPassword: {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 5,
+    message: 'Too many password reset attempts. Please try again after 1 hour.',
+  },
+  changePassword: {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 5,
+    message: 'Too many password change attempts. Please try again after 1 hour.',
+  },
 } as const;
 
 export const JUDGE0_LIMIT_CONFIG: Judge0LimitConfig = {

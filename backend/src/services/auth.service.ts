@@ -5,17 +5,21 @@ import { users, profiles } from '../db/schema';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { ApiError } from '../utils/ApiError';
 import crypto, { randomBytes } from 'crypto';
-import { emailVerificationContent, sendMail } from '@/utils/mail';
+import { emailVerificationContent, forgotPasswordContent, sendMail } from '@/utils/mail';
 import { getEnv } from '@/utils/env';
 import axios from 'axios';
 
 import type {
+  ChangePasswordDTO,
+  ForgotPasswordDTO,
   GitHubEmail,
   GitHubUser,
   LoginSchemaDTO,
   oAuthSchemaDTO,
   RegisterDto,
   ResendEmailVerficationDTO,
+  ResetPasswordDTO,
+  ResetPasswordParamDTO,
   VerifyEmailDTO,
 } from '../validators/auth.schema';
 
@@ -362,4 +366,101 @@ export const githubOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
   }
 
   return { id: user.id };
+};
+
+export const forgotPasswordService = async ({ email }: ForgotPasswordDTO) => {
+  const user = await db.query.users.findFirst({
+    where: eq(users.email, email),
+  });
+
+  // Silently return if user not found — prevents email enumeration
+  if (!user) return;
+
+  const rawToken = randomBytes(32).toString('hex');
+  const hashedToken = hashToken(rawToken);
+  const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  await db
+    .update(users)
+    .set({ forgotPasswordToken: hashedToken, forgotPasswordExpiry: expiry })
+    .where(eq(users.id, user.id));
+
+  const profile = await db.query.profiles.findFirst({
+    where: eq(profiles.userId, user.id),
+    columns: { username: true },
+  });
+
+  const resetUrl = `${getEnv('CLIENT_URL')}/reset-password/${rawToken}`;
+  try {
+    await sendMail({
+      email: user.email,
+      subject: 'Reset your password',
+      mailGenContent: forgotPasswordContent(profile?.username ?? 'User', resetUrl),
+    });
+  } catch (err) {
+    console.error('Failed to send password reset email', err);
+  }
+};
+
+export const resetPasswordService = async (
+  { token }: ResetPasswordParamDTO,
+  { password }: ResetPasswordDTO
+) => {
+  const hashedToken = hashToken(token);
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.forgotPasswordToken, hashedToken),
+  });
+
+  if (!user) {
+    throw new ApiError(404, 'Invalid or expired reset token');
+  }
+
+  if (!user.forgotPasswordExpiry || user.forgotPasswordExpiry < new Date()) {
+    throw new ApiError(410, 'Reset token has expired');
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await db
+    .update(users)
+    .set({
+      password: hashedPassword,
+      forgotPasswordToken: null,
+      forgotPasswordExpiry: null,
+      refreshToken: null, // force re-login on all devices
+    })
+    .where(eq(users.id, user.id));
+};
+
+export const changePasswordService = async (
+  userId: string,
+  { currentPassword, newPassword }: ChangePasswordDTO
+) => {
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+  });
+
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  if (!user.password) {
+    throw new ApiError(400, 'Cannot change password for OAuth accounts');
+  }
+
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) {
+    throw new ApiError(400, 'Current password is incorrect');
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await db
+    .update(users)
+    .set({
+      password: hashedPassword,
+      refreshToken: null, // force re-login on all devices
+    })
+    .where(eq(users.id, userId));
 };

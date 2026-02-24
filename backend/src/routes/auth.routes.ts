@@ -7,6 +7,10 @@ import {
   registerSchema,
   resendEmailVerfication,
   verifyEmailSchema,
+  forgotPasswordSchema,
+  resetPasswordParamSchema,
+  resetPasswordSchema,
+  changePasswordSchema,
 } from '../validators/auth.schema';
 import {
   githubOAuthCallback,
@@ -19,6 +23,9 @@ import {
   register,
   resendEmail,
   verify,
+  forgotPassword,
+  resetPassword,
+  changePassword,
 } from '../controllers/auth.controllers';
 import { requireAuth } from '@/middleware/auth.middleware';
 
@@ -31,6 +38,9 @@ const verifyLimiter = createAuthLimiter('verify');
 const resendEmailLimiter = createAuthLimiter('resendEmailVerification');
 const refreshLimiter = createAuthLimiter('refresh');
 const logoutLimiter = createAuthLimiter('logout');
+const forgotPasswordLimiter = createAuthLimiter('forgotPassword');
+const resetPasswordLimiter = createAuthLimiter('resetPassword');
+const changePasswordLimiter = createAuthLimiter('changePassword');
 
 // Auth endpoints with rate limiting
 router.post('/register', registerLimiter, validate({ body: registerSchema }), register);
@@ -64,7 +74,26 @@ router.get('/github', githubOAuthRedirect);
 
 router.get('/github/callback', validate({ query: oAuthSchema }), githubOAuthCallback);
 
-// router.post('/forgotPassword');
-// router.post('/resetPassword/:token');
-// router.post('/changePassword');
+router.post(
+  '/forgotPassword',
+  forgotPasswordLimiter,
+  validate({ body: forgotPasswordSchema }),
+  forgotPassword
+);
+
+router.post(
+  '/resetPassword/:token',
+  resetPasswordLimiter,
+  validate({ params: resetPasswordParamSchema, body: resetPasswordSchema }),
+  resetPassword
+);
+
+router.post(
+  '/changePassword',
+  changePasswordLimiter,
+  requireAuth,
+  validate({ body: changePasswordSchema }),
+  changePassword
+);
+
 export default router;

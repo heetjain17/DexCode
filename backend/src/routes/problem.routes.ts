@@ -6,7 +6,7 @@ import {
   getProblem,
   updateProblem,
 } from '@/controllers/problem.controller';
-import { optionalAuth, requireAuth, reuireRole } from '@/middleware/auth.middleware';
+import { optionalAuth, requireAuth, requireRole } from '@/middleware/auth.middleware';
 import { validate } from '@/middleware/validate.middleware';
 import {
   createProblemSchema,
@@ -20,7 +20,7 @@ const router = Router();
 router.post(
   '/',
   requireAuth,
-  reuireRole('ADMIN'),
+  requireRole('ADMIN'),
   validate({ body: createProblemSchema }),
   createProblem
 );
@@ -29,14 +29,14 @@ router.get('/:id', optionalAuth, validate({ params: problemIdParamSchema }), get
 router.put(
   '/:id',
   requireAuth,
-  reuireRole('ADMIN'),
+  requireRole('ADMIN'),
   validate({ params: problemIdParamSchema, body: updateProblemSchema }),
   updateProblem
 );
 router.delete(
   '/:id',
   requireAuth,
-  reuireRole('ADMIN'),
+  requireRole('ADMIN'),
   validate({ params: problemIdParamSchema }),
   deleteProblem
 );

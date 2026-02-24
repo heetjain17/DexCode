@@ -11,6 +11,9 @@ import {
   registerService,
   resendEmailVerificationService,
   verifyService,
+  forgotPasswordService,
+  resetPasswordService,
+  changePasswordService,
 } from '../services/auth.service';
 import {
   LoginSchemaDTO,
@@ -18,6 +21,10 @@ import {
   RegisterDto,
   ResendEmailVerficationDTO,
   VerifyEmailDTO,
+  ForgotPasswordDTO,
+  ResetPasswordParamDTO,
+  ResetPasswordDTO,
+  ChangePasswordDTO,
 } from '@/validators/auth.schema';
 import { getEnv } from '@/utils/env';
 
@@ -111,7 +118,7 @@ export const googleOAuthCallback = asyncHandler(async (req, res) => {
     .cookie('accessToken', accessToken, accessTokenOptions)
     .cookie('refreshToken', refreshToken, refreshTokenOptions);
 
-  res.redirect('http://localhost:5173/auth/callback');
+  res.redirect(`${getEnv('CLIENT_URL')}/auth/callback`);
 });
 
 export const githubOAuthRedirect = asyncHandler(async (req, res) => {
@@ -128,5 +135,28 @@ export const githubOAuthCallback = asyncHandler(async (req, res) => {
     .cookie('accessToken', accessToken, accessTokenOptions)
     .cookie('refreshToken', refreshToken, refreshTokenOptions);
 
-  res.redirect('http://localhost:5173/auth/callback');
+  res.redirect(`${getEnv('CLIENT_URL')}/auth/callback`);
+});
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const data = req.validated!.body as ForgotPasswordDTO;
+  await forgotPasswordService(data);
+  res.status(200).json(apiSuccess(200, 'If that email exists, a reset link has been sent'));
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const params = req.validated!.params as ResetPasswordParamDTO;
+  const body = req.validated!.body as ResetPasswordDTO;
+  await resetPasswordService(params, body);
+  res.status(200).json(apiSuccess(200, 'Password reset successfully'));
+});
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const data = req.validated!.body as ChangePasswordDTO;
+  await changePasswordService(req.user!.id, data);
+  res
+    .clearCookie('accessToken', accessTokenOptions)
+    .clearCookie('refreshToken', refreshTokenOptions)
+    .status(200)
+    .json(apiSuccess(200, 'Password changed successfully. Please log in again'));
 });

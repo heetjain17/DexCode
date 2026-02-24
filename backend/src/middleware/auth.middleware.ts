@@ -35,7 +35,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
   next();
 };
 
-export const reuireRole =
+export const requireRole =
   (...roles: Array<'ADMIN' | 'USER'>) =>
   (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {
