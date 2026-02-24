@@ -34,9 +34,14 @@ app.use(cookieParser());
 const globalLimiter = createGlobalLimiter();
 app.use(globalLimiter);
 
-// Health check endpoint
-app.get('/health', (_req, res) => {
-  res.json({ statusCode: 200, message: 'DexCode is running 🔪🩸' });
+// Health check endpoint — used by Docker/load balancers
+app.get('/health', async (_req, res) => {
+  try {
+    await db.execute(sql`SELECT 1`);
+    res.status(200).json({ status: 'ok', db: 'ok' });
+  } catch {
+    res.status(503).json({ status: 'error', db: 'unreachable' });
+  }
 });
 
 // API Routes

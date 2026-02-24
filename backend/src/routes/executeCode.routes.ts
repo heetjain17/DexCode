@@ -10,7 +10,7 @@ const router = Router();
 // Rate limiter for code submissions (5 submissions per minute per user)
 const judge0Limiter = createJudge0Limiter();
 
-router.post('/run', requireAuth, validate({ body: runCodeSchema }), runCodePreview);
+router.post('/run', requireAuth, judge0Limiter, validate({ body: runCodeSchema }), runCodePreview);
 
 router.post('/submit', requireAuth, judge0Limiter, validate({ body: runCodeSchema }), submitCode);
 
