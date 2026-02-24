@@ -390,7 +390,7 @@ export const forgotPasswordService = async ({ email }: ForgotPasswordDTO) => {
     columns: { username: true },
   });
 
-  const resetUrl = `${getEnv('CLIENT_URL')}/reset-password/${rawToken}`;
+  const resetUrl = `${getEnv('BASE_URL')}/api/v1/auth/resetPassword/${rawToken}`;
   try {
     await sendMail({
       email: user.email,
