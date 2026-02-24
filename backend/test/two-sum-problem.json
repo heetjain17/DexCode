@@ -70,23 +70,23 @@
   "codeSnippets": [
     {
       "language": "PYTHON",
-      "template": "class Solution:\n    def twoSum(self, nums, target):\n        # Write your code here\n        pass",
-      "userCode": "class Solution:\n    def twoSum(self, nums, target):\n        # Write your code here\n        pass"
+      "template": "import json\n\n[USER_CODE_HERE]\n\nnums = json.loads(input())\ntarget = int(input())\nprint(json.dumps(Solution().twoSum(nums, target), separators=(',', ':')))",
+      "userCode": "class Solution:\n    def twoSum(self, nums: list, target: int) -> list:\n        # Write your code here\n        pass"
     },
     {
       "language": "JAVA",
-      "template": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your code here\n        return new int[0];\n    }\n}",
-      "userCode": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your code here\n        return new int[0];\n    }\n}"
+      "template": "import java.util.*;\n\n[USER_CODE_HERE]\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        line = line.substring(1, line.length() - 1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) {\n            nums[i] = Integer.parseInt(parts[i].trim());\n        }\n        long target = sc.nextLong();\n        Solution sol = new Solution();\n        int[] result = sol.twoSum(nums, target);\n        StringBuilder sb = new StringBuilder(\"[\");\n        for (int i = 0; i < result.length; i++) {\n            sb.append(result[i]);\n            if (i < result.length - 1) sb.append(\",\");\n        }\n        sb.append(\"]\");\n        System.out.println(sb.toString());\n    }\n}",
+      "userCode": "class Solution {\n    public int[] twoSum(int[] nums, long target) {\n        // Write your code here\n        return new int[0];\n    }\n}"
     },
     {
       "language": "JAVASCRIPT",
-      "template": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nvar twoSum = function(nums, target) {\n    // Write your code here\n};",
-      "userCode": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nvar twoSum = function(nums, target) {\n    // Write your code here\n};"
+      "template": "const readline = require('readline');\nconst rl = readline.createInterface({ input: process.stdin });\n\n[USER_CODE_HERE]\n\nconst lines = [];\nrl.on('line', (line) => lines.push(line.trim()));\nrl.on('close', () => {\n    const nums = JSON.parse(lines[0]);\n    const target = parseInt(lines[1]);\n    const sol = new Solution();\n    console.log(JSON.stringify(sol.twoSum(nums, target)));\n});",
+      "userCode": "class Solution {\n    /**\n     * @param {number[]} nums\n     * @param {number} target\n     * @return {number[]}\n     */\n    twoSum(nums, target) {\n        // Write your code here\n    }\n}"
     },
     {
       "language": "CPP",
-      "template": "#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        // Write your code here\n        return {};\n    }\n};",
-      "userCode": "#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        // Write your code here\n        return {};\n    }\n};"
+      "template": "#include <iostream>\n#include <vector>\n#include <unordered_map>\n#include <sstream>\n#include <string>\nusing namespace std;\n\n[USER_CODE_HERE]\n\nint main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    string line;\n    getline(cin, line);\n    vector<long long> nums;\n    string inner = line.substr(1, line.length() - 2);\n    stringstream ss(inner);\n    string token;\n    while (getline(ss, token, ',')) {\n        nums.push_back(stoll(token));\n    }\n    long long target;\n    cin >> target;\n    Solution sol;\n    vector<int> result = sol.twoSum(nums, target);\n    cout << \"[\";\n    for (size_t i = 0; i < result.size(); i++) {\n        cout << result[i];\n        if (i < result.size() - 1) cout << \",\";\n    }\n    cout << \"]\" << endl;\n    return 0;\n}",
+      "userCode": "class Solution {\npublic:\n    vector<int> twoSum(vector<long long>& nums, long long target) {\n        // Write your code here\n        return {};\n    }\n};"
     }
   ],
   "referenceSolutions": [

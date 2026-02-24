@@ -7,17 +7,28 @@ interface Testcase {
   output: string;
 }
 
+function injectTemplate(template: string | null | undefined, sourceCode: string): string {
+  if (!template) return sourceCode;
+  if (!template.includes('[USER_CODE_HERE]')) {
+    throw new ApiError(500, 'Code template is missing the [USER_CODE_HERE] marker');
+  }
+  return template.replace('[USER_CODE_HERE]', sourceCode);
+}
+
 export const executeCodeAgainstTestcases = async (
   sourceCode: string,
   languageId: number,
-  testcases: Testcase[]
+  testcases: Testcase[],
+  template?: string | null
 ): Promise<ExecutionResponse> => {
   if (!Array.isArray(testcases) || testcases.length === 0) {
     throw new ApiError(400, 'Invalid or empty testcases');
   }
 
+  const codeToRun = injectTemplate(template, sourceCode);
+
   const submissions = testcases.map((tc) => ({
-    source_code: sourceCode,
+    source_code: codeToRun,
     language_id: languageId,
     stdin: tc.input,
   }));

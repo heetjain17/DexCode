@@ -89,20 +89,21 @@ async function validateAllSolutions(
   referenceSolutions: Array<{ language: string; solution: string }>,
   testcaseIO: Array<{ input: string; output: string }>
 ): Promise<{ success: true } | { success: false; failures: ProblemValidationFailure[] }> {
-  const failures: ProblemValidationFailure[] = [];
+  const results = await Promise.all(
+    referenceSolutions.map(async (rs) => {
+      const languageId = getLanguageId(rs.language as Parameters<typeof getLanguageId>[0]);
+      const { allPassed, detailedResults } = await executeCodeAgainstTestcases(
+        rs.solution,
+        languageId,
+        testcaseIO
+      );
+      return { language: rs.language, allPassed, detailedResults };
+    })
+  );
 
-  for (const rs of referenceSolutions) {
-    const languageId = getLanguageId(rs.language as Parameters<typeof getLanguageId>[0]);
-    const { allPassed, detailedResults } = await executeCodeAgainstTestcases(
-      rs.solution,
-      languageId,
-      testcaseIO
-    );
-
-    if (!allPassed) {
-      failures.push({ language: rs.language, details: detailedResults });
-    }
-  }
+  const failures: ProblemValidationFailure[] = results
+    .filter((r) => !r.allPassed)
+    .map((r) => ({ language: r.language, details: r.detailedResults }));
 
   return failures.length > 0 ? { success: false, failures } : { success: true };
 }
