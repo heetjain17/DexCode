@@ -1,0 +1,127 @@
+{
+  "title": "Two Sum",
+  "description": "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.",
+  "difficulty": "EASY",
+  "tags": ["Array", "Hash Table"],
+  "examples": [
+    {
+      "input": "[2,7,11,15]\n9",
+      "output": "[0,1]",
+      "explanation": "Because nums[0] + nums[1] == 9, we return [0, 1].",
+      "order": 0
+    },
+    {
+      "input": "[3,2,4]\n6",
+      "output": "[1,2]",
+      "explanation": "Because nums[1] + nums[2] == 6, we return [1, 2].",
+      "order": 1
+    },
+    {
+      "input": "[3,3]\n6",
+      "output": "[0,1]",
+      "explanation": "Because nums[0] + nums[1] == 6, we return [0, 1].",
+      "order": 2
+    }
+  ],
+  "constraints": [
+    {
+      "description": "2 <= nums.length <= 10⁴",
+      "order": 0
+    },
+    {
+      "description": "-10⁹ <= nums[i] <= 10⁹",
+      "order": 1
+    },
+    {
+      "description": "-10⁹ <= target <= 10⁹",
+      "order": 2
+    },
+    {
+      "description": "Only one valid answer exists.",
+      "order": 3
+    }
+  ],
+  "testcases": [
+    {
+      "input": "[1,5,3,7,8,9]\n12",
+      "output": "[1,3]",
+      "order": 0,
+      "isHidden": true
+    },
+    {
+      "input": "[-1,-2,-3,-4,-5]\n-8",
+      "output": "[2,4]",
+      "order": 1,
+      "isHidden": true
+    },
+    {
+      "input": "[0,4,3,0]\n0",
+      "output": "[0,3]",
+      "order": 2,
+      "isHidden": true
+    },
+    {
+      "input": "[1000000000,2000000000]\n3000000000",
+      "output": "[0,1]",
+      "order": 3,
+      "isHidden": true
+    }
+  ],
+  "codeSnippets": [
+    {
+      "language": "PYTHON",
+      "template": "class Solution:\n    def twoSum(self, nums, target):\n        # Write your code here\n        pass",
+      "userCode": "class Solution:\n    def twoSum(self, nums, target):\n        # Write your code here\n        pass"
+    },
+    {
+      "language": "JAVA",
+      "template": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your code here\n        return new int[0];\n    }\n}",
+      "userCode": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your code here\n        return new int[0];\n    }\n}"
+    },
+    {
+      "language": "JAVASCRIPT",
+      "template": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nvar twoSum = function(nums, target) {\n    // Write your code here\n};",
+      "userCode": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nvar twoSum = function(nums, target) {\n    // Write your code here\n};"
+    },
+    {
+      "language": "CPP",
+      "template": "#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        // Write your code here\n        return {};\n    }\n};",
+      "userCode": "#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        // Write your code here\n        return {};\n    }\n};"
+    }
+  ],
+  "referenceSolutions": [
+    {
+      "language": "PYTHON",
+      "solution": "import json\n\nclass Solution:\n    def twoSum(self, nums, target):\n        seen = {}\n        for i, num in enumerate(nums):\n            complement = target - num\n            if complement in seen:\n                return [seen[complement], i]\n            seen[num] = i\n        return []\n\nnums = json.loads(input())\ntarget = int(input())\nsol = Solution()\nresult = sol.twoSum(nums, target)\nprint(json.dumps(result, separators=(',', ':')))"
+    },
+    {
+      "language": "JAVA",
+      "solution": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, long target) {\n        Map<Long, Integer> seen = new HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            long complement = target - nums[i];\n            if (seen.containsKey(complement)) {\n                return new int[] { seen.get(complement), i };\n            }\n            seen.put((long)nums[i], i);\n        }\n        return new int[0];\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        String line = sc.nextLine();\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) {\n            nums[i] = Integer.parseInt(parts[i]);\n        }\n        \n        long target = sc.nextLong();\n        \n        Solution sol = new Solution();\n        int[] result = sol.twoSum(nums, target);\n        \n        System.out.print(\"[\");\n        for (int i = 0; i < result.length; i++) {\n            System.out.print(result[i]);\n            if (i < result.length - 1) System.out.print(\",\");\n        }\n        System.out.println(\"]\");\n    }\n}"
+    },
+    {
+      "language": "JAVASCRIPT",
+      "solution": "const readline = require('readline');\nconst rl = readline.createInterface({input: process.stdin});\n\nclass Solution {\n    twoSum(nums, target) {\n        const seen = new Map();\n        for (let i = 0; i < nums.length; i++) {\n            const complement = target - nums[i];\n            if (seen.has(complement)) {\n                return [seen.get(complement), i];\n            }\n            seen.set(nums[i], i);\n        }\n        return [];\n    }\n}\n\nconst lines = [];\nrl.on('line', (line) => lines.push(line));\nrl.on('close', () => {\n    const nums = JSON.parse(lines[0]);\n    const target = parseInt(lines[1]);\n    const sol = new Solution();\n    const result = sol.twoSum(nums, target);\n    console.log(JSON.stringify(result));\n});"
+    },
+    {
+      "language": "CPP",
+      "solution": "#include <iostream>\n#include <vector>\n#include <unordered_map>\n#include <sstream>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<long long>& nums, long long target) {\n        unordered_map<long long, int> seen;\n        for (int i = 0; i < nums.size(); i++) {\n            long long complement = target - nums[i];\n            if (seen.find(complement) != seen.end()) {\n                return {seen[complement], i};\n            }\n            seen[nums[i]] = i;\n        }\n        return {};\n    }\n};\n\nint main() {\n    string line;\n    getline(cin, line);\n    \n    vector<long long> nums;\n    stringstream ss(line.substr(1, line.length()-2));\n    string num;\n    while (getline(ss, num, ',')) {\n        nums.push_back(stoll(num));\n    }\n    \n    long long target;\n    cin >> target;\n    \n    Solution sol;\n    vector<int> result = sol.twoSum(nums, target);\n    \n    cout << \"[\" << result[0] << \",\" << result[1] << \"]\" << endl;\n    return 0;\n}"
+    }
+  ],
+  "hints": [
+    "A brute force approach would be to check every pair of numbers. Can you think of a more efficient way?",
+    "Think about using a hash table to store numbers you've already seen.",
+    "For each number, calculate what its complement would need to be (target - current number). Have you seen that complement before?"
+  ],
+  "companies": [
+    "Google",
+    "Amazon",
+    "Microsoft",
+    "Apple",
+    "Facebook",
+    "Adobe",
+    "Airbnb",
+    "Bloomberg",
+    "LinkedIn"
+  ],
+  "editorial": "## Approach 1: Brute Force\n\n### Intuition\nThe brute force approach is simple. Loop through each element `x` and find if there is another value that equals to `target - x`.\n\n### Algorithm\nFor each element in the array:\n- Check every element that comes after it\n- If the sum equals the target, return the indices\n\n### Complexity Analysis\n- Time complexity: O(n²). For each element, we try to find its complement by looping through the rest of the array which takes O(n) time.\n- Space complexity: O(1). The space required does not depend on the size of the input array.\n\n## Approach 2: Hash Table (Optimal)\n\n### Intuition\nTo improve our runtime complexity, we can use a hash table to trade space for time. By storing elements we've seen along with their indices, we can check if the complement exists in constant time.\n\n### Algorithm\n1. Create an empty hash table\n2. Iterate through the array\n3. For each element, calculate its complement: `complement = target - current_element`\n4. Check if the complement exists in the hash table\n5. If it exists, return both indices\n6. If it doesn't exist, add the current element and its index to the hash table\n\n### Complexity Analysis\n- Time complexity: O(n). We traverse the list containing n elements only once. Each lookup in the table costs only O(1) time.\n- Space complexity: O(n). The extra space required depends on the number of items stored in the hash table, which stores at most n elements."
+}

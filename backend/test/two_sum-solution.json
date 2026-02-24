@@ -1,0 +1,108 @@
+{
+  "note": "Test payloads for Two Sum problem. Replace {{PROBLEM_ID}} with actual UUID after creating the problem using two-sum-problem.json",
+  "endpoints": {
+    "run": "POST /api/v1/execute-code/run",
+    "submit": "POST /api/v1/execute-code/submit"
+  },
+  "testCases": {
+    "PYTHON": {
+      "correctSolution": {
+        "source_code": "class Solution:\n    def twoSum(self, nums, target):\n        seen = {}\n        for i, num in enumerate(nums):\n            complement = target - num\n            if complement in seen:\n                return [seen[complement], i]\n            seen[num] = i\n        return []",
+        "language": "PYTHON",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "wrongAnswer": {
+        "source_code": "class Solution:\n    def twoSum(self, nums, target):\n        # Always returns first two indices\n        return [0, 1]",
+        "language": "PYTHON",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "runtimeError": {
+        "source_code": "class Solution:\n    def twoSum(self, nums, target):\n        return nums[100]  # Index out of bounds",
+        "language": "PYTHON",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "syntaxError": {
+        "source_code": "class Solution:\n    def twoSum(self, nums, target)\n        return [0, 1]  # Missing colon",
+        "language": "PYTHON",
+        "problemId": "{{PROBLEM_ID}}"
+      }
+    },
+    "JAVA": {
+      "correctSolution": {
+        "source_code": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, long target) {\n        Map<Long, Integer> seen = new HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            long complement = target - nums[i];\n            if (seen.containsKey(complement)) {\n                return new int[] { seen.get(complement), i };\n            }\n            seen.put((long)nums[i], i);\n        }\n        return new int[0];\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        String line = sc.nextLine();\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) {\n            nums[i] = Integer.parseInt(parts[i]);\n        }\n        \n        long target = sc.nextLong();\n        \n        Solution sol = new Solution();\n        int[] result = sol.twoSum(nums, target);\n        \n        System.out.print(\"[\");\n        for (int i = 0; i < result.length; i++) {\n            System.out.print(result[i]);\n            if (i < result.length - 1) System.out.print(\",\");\n        }\n        System.out.println(\"]\");\n    }\n}",
+        "language": "JAVA",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "wrongAnswer": {
+        "source_code": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, long target) {\n        // Always returns first two indices\n        return new int[] {0, 1};\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        String line = sc.nextLine();\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) {\n            nums[i] = Integer.parseInt(parts[i]);\n        }\n        \n        long target = sc.nextLong();\n        \n        Solution sol = new Solution();\n        int[] result = sol.twoSum(nums, target);\n        \n        System.out.print(\"[\");\n        for (int i = 0; i < result.length; i++) {\n            System.out.print(result[i]);\n            if (i < result.length - 1) System.out.print(\",\");\n        }\n        System.out.println(\"]\");\n    }\n}",
+        "language": "JAVA",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "runtimeError": {
+        "source_code": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, long target) {\n        return new int[] {nums[100], 0}; // Index out of bounds\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        String line = sc.nextLine();\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) {\n            nums[i] = Integer.parseInt(parts[i]);\n        }\n        \n        long target = sc.nextLong();\n        \n        Solution sol = new Solution();\n        int[] result = sol.twoSum(nums, target);\n        \n        System.out.print(\"[\");\n        for (int i = 0; i < result.length; i++) {\n            System.out.print(result[i]);\n            if (i < result.length - 1) System.out.print(\",\");\n        }\n        System.out.println(\"]\");\n    }\n}",
+        "language": "JAVA",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "compilationError": {
+        "source_code": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, long target) {\n        return new int[] {0, 1}  // Missing semicolon\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        String line = sc.nextLine();\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) {\n            nums[i] = Integer.parseInt(parts[i]);\n        }\n        \n        long target = sc.nextLong();\n        \n        Solution sol = new Solution();\n        int[] result = sol.twoSum(nums, target);\n        \n        System.out.print(\"[\");\n        for (int i = 0; i < result.length; i++) {\n            System.out.print(result[i]);\n            if (i < result.length - 1) System.out.print(\",\");\n        }\n        System.out.println(\"]\");\n    }\n}",
+        "language": "JAVA",
+        "problemId": "{{PROBLEM_ID}}"
+      }
+    },
+    "JAVASCRIPT": {
+      "correctSolution": {
+        "source_code": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nvar twoSum = function(nums, target) {\n    const seen = new Map();\n    for (let i = 0; i < nums.length; i++) {\n        const complement = target - nums[i];\n        if (seen.has(complement)) {\n            return [seen.get(complement), i];\n        }\n        seen.set(nums[i], i);\n    }\n    return [];\n};",
+        "language": "JAVASCRIPT",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "wrongAnswer": {
+        "source_code": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nvar twoSum = function(nums, target) {\n    // Always returns first two indices\n    return [0, 1];\n};",
+        "language": "JAVASCRIPT",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "runtimeError": {
+        "source_code": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nvar twoSum = function(nums, target) {\n    return nums[100]; // Index out of bounds\n};",
+        "language": "JAVASCRIPT",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "syntaxError": {
+        "source_code": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nvar twoSum = function(nums, target) {\n    return [0, 1]  // Missing semicolon (not an error in JS but testing)\n};",
+        "language": "JAVASCRIPT",
+        "problemId": "{{PROBLEM_ID}}"
+      }
+    },
+    "CPP": {
+      "correctSolution": {
+        "source_code": "#include <vector>\\n#include <unordered_map>\\nusing namespace std;\\n\\nclass Solution {\\npublic:\\n    vector<int> twoSum(vector<int>& nums, int target) {\\n        unordered_map<int, int> seen;\\n        for (int i = 0; i < nums.size(); i++) {\\n            int complement = target - nums[i];\\n            if (seen.find(complement) != seen.end()) {\\n                return {seen[complement], i};\\n            }\\n            seen[nums[i]] = i;\\n        }\\n        return {};\\n    }\\n};",
+        "language": "CPP",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "wrongAnswer": {
+        "source_code": "#include <vector>\\n#include <unordered_map>\\nusing namespace std;\\n\\nclass Solution {\\npublic:\\n    vector<int> twoSum(vector<int>& nums, int target) {\\n        // Always returns first two indices\\n        return {0, 1};\\n    }\\n};",
+        "language": "CPP",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "runtimeError": {
+        "source_code": "#include <vector>\\n#include <unordered_map>\\nusing namespace std;\\n\\nclass Solution {\\npublic:\\n    vector<int> twoSum(vector<int>& nums, int target) {\\n        return {nums[100], 0}; // Index out of bounds\\n    }\\n};",
+        "language": "CPP",
+        "problemId": "{{PROBLEM_ID}}"
+      },
+      "compilationError": {
+        "source_code": "#include <vector>\\n#include <unordered_map>\\nusing namespace std;\\n\\nclass Solution {\\npublic:\\n    vector<int> twoSum(vector<int>& nums, int target) {\\n        return {0, 1}  // Missing semicolon\\n    }\\n};",
+        "language": "CPP",
+        "problemId": "{{PROBLEM_ID}}"
+      }
+    }
+  },
+  "curlExamples": {
+    "run": {
+      "python": "curl -X POST http://localhost:8080/api/v1/execute-code/run \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Cookie: accessToken=YOUR_ACCESS_TOKEN\" \\\n  -d @- << 'EOF'\n{\n  \"source_code\": \"class Solution:\\n    def twoSum(self, nums, target):\\n        seen = {}\\n        for i, num in enumerate(nums):\\n            complement = target - num\\n            if complement in seen:\\n                return [seen[complement], i]\\n            seen[num] = i\\n        return []\",\n  \"language\": \"PYTHON\",\n  \"problemId\": \"{{PROBLEM_ID}}\"\n}\nEOF",
+      "java": "curl -X POST http://localhost:8080/api/v1/execute-code/run \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Cookie: accessToken=YOUR_ACCESS_TOKEN\" \\\n  -d '{\"source_code\":\"import java.util.*;\\n\\nclass Solution {\\n    public int[] twoSum(int[] nums, int target) {\\n        Map<Integer, Integer> seen = new HashMap<>();\\n        for (int i = 0; i < nums.length; i++) {\\n            int complement = target - nums[i];\\n            if (seen.containsKey(complement)) {\\n                return new int[] { seen.get(complement), i };\\n            }\\n            seen.put(nums[i], i);\\n        }\\n        return new int[0];\\n    }\\n}\",\"language\":\"JAVA\",\"problemId\":\"{{PROBLEM_ID}}\"}'",
+      "javascript": "curl -X POST http://localhost:8080/api/v1/execute-code/run \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Cookie: accessToken=YOUR_ACCESS_TOKEN\" \\\n  -d '{\"source_code\":\"var twoSum = function(nums, target) {\\n    const seen = new Map();\\n    for (let i = 0; i < nums.length; i++) {\\n        const complement = target - nums[i];\\n        if (seen.has(complement)) {\\n            return [seen.get(complement), i];\\n        }\\n        seen.set(nums[i], i);\\n    }\\n    return [];\\n};\",\"language\":\"JAVASCRIPT\",\"problemId\":\"{{PROBLEM_ID}}\"}'",
+      "cpp": "curl -X POST http://localhost:8080/api/v1/execute-code/run \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Cookie: accessToken=YOUR_ACCESS_TOKEN\" \\\n  -d '{\"source_code\":\"#include <vector>\\\\n#include <unordered_map>\\\\nusing namespace std;\\\\n\\\\nclass Solution {\\\\npublic:\\\\n    vector<int> twoSum(vector<int>& nums, int target) {\\\\n        unordered_map<int, int> seen;\\\\n        for (int i = 0; i < nums.size(); i++) {\\\\n            int complement = target - nums[i];\\\\n            if (seen.find(complement) != seen.end()) {\\\\n                return {seen[complement], i};\\\\n            }\\\\n            seen[nums[i]] = i;\\\\n        }\\\\n        return {};\\\\n    }\\\\n};\",\"language\":\"CPP\",\"problemId\":\"{{PROBLEM_ID}}\"}'"
+    },
+    "submit": {
+      "python": "curl -X POST http://localhost:8080/api/v1/execute-code/submit \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Cookie: accessToken=YOUR_ACCESS_TOKEN\" \\\n  -d @- << 'EOF'\n{\n  \"source_code\": \"class Solution:\\n    def twoSum(self, nums, target):\\n        seen = {}\\n        for i, num in enumerate(nums):\\n            complement = target - num\\n            if complement in seen:\\n                return [seen[complement], i]\\n            seen[num] = i\\n        return []\",\n  \"language\": \"PYTHON\",\n  \"problemId\": \"{{PROBLEM_ID}}\"\n}\nEOF"
+    }
+  }
+}

@@ -321,6 +321,8 @@ All routes require authentication.
 
 **Auth required.** Run code against a problem's example test cases only. Does not create a submission record.
 
+**Testing:** See `test/two_sum-solution.json` for complete test payloads.
+
 **Body**
 
 ```json
@@ -386,6 +388,8 @@ All routes require authentication.
 ```
 
 Possible `status` values: `ACCEPTED` | `WRONG_ANSWER` | `RUNTIME_ERROR` | `COMPILATION_ERROR` | `TIME_LIMIT_EXCEEDED` | `MEMORY_LIMIT_EXCEEDED`
+
+**Testing Note:** See the [Testing with Sample Files](#testing-with-sample-files) section below for complete test payloads. Use `test/two_sum-solution.json` for ready-to-use payloads for all languages and scenarios.
 
 ---
 
@@ -491,6 +495,71 @@ All `referenceSolutions` are validated against every `testcase` **and** every `e
   }
 }
 ```
+
+---
+
+#### Testing with Sample Files
+
+The `test/` directory contains sample payloads for complete end-to-end testing:
+
+**Step 1: Create the Problem**
+
+```bash
+# Use two-sum-problem.json to create the problem
+curl -X POST http://localhost:8080/api/v1/problem \
+  -H "Content-Type: application/json" \
+  -H "Cookie: accessToken=YOUR_ADMIN_ACCESS_TOKEN" \
+  -d @test/two-sum-problem.json
+```
+
+**Response:**
+
+```json
+{
+  "statusCode": 201,
+  "message": "Problem created successfully",
+  "data": {
+    "id": "abc-123-def-456",
+    "slug": "two-sum"
+  }
+}
+```
+
+**Step 2: Test Code Execution**
+
+Update the `problemId` in `test/two_sum-solution.json` (replace all `{{PROBLEM_ID}}` with the returned UUID), then test:
+
+```bash
+# Test /run endpoint (examples only, no submission saved)
+curl -X POST http://localhost:8080/api/v1/execute-code/run \
+  -H "Content-Type: application/json" \
+  -H "Cookie: accessToken=YOUR_ACCESS_TOKEN" \
+  -d '{
+    "source_code": "class Solution:\n    def twoSum(self, nums, target):\n        seen = {}\n        for i, num in enumerate(nums):\n            complement = target - num\n            if complement in seen:\n                return [seen[complement], i]\n            seen[num] = i\n        return []",
+    "language": "PYTHON",
+    "problemId": "abc-123-def-456"
+  }'
+
+# Test /submit endpoint (all test cases, creates submission)
+curl -X POST http://localhost:8080/api/v1/execute-code/submit \
+  -H "Content-Type: application/json" \
+  -H "Cookie: accessToken=YOUR_ACCESS_TOKEN" \
+  -d '{
+    "source_code": "class Solution:\n    def twoSum(self, nums, target):\n        seen = {}\n        for i, num in enumerate(nums):\n            complement = target - num\n            if complement in seen:\n                return [seen[complement], i]\n            seen[num] = i\n        return []",
+    "language": "PYTHON",
+    "problemId": "abc-123-def-456"
+  }'
+```
+
+**Available Test Cases in `test/two_sum-solution.json`:**
+
+- `correctSolution` - Should pass all tests (status: `ACCEPTED`)
+- `wrongAnswer` - Should fail with `WRONG_ANSWER` status
+- `runtimeError` - Should fail with `RUNTIME_ERROR` status
+- `compilationError` - Should fail with `COMPILATION_ERROR` status (Java/C++ only)
+- `syntaxError` - Should fail with syntax/compilation error (Python/JavaScript)
+
+All payloads are available for all 4 languages: Python, Java, JavaScript, and C++.
 
 ---
 
