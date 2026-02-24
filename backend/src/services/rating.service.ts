@@ -45,10 +45,7 @@ export const getProblemRatingService = async (problemId: string, userId?: string
   let userRating: number | null = null;
   if (userId) {
     const own = await db.query.problemRatings.findFirst({
-      where: and(
-        eq(problemRatings.problemId, problemId),
-        eq(problemRatings.userId, userId)
-      ),
+      where: and(eq(problemRatings.problemId, problemId), eq(problemRatings.userId, userId)),
       columns: { rating: true },
     });
     userRating = own?.rating ?? null;
