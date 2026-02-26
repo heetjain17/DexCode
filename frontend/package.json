@@ -1,6 +1,7 @@
 {
-  "name": "frontend",
+  "name": "dexcode",
   "version": "0.1.0",
+  "description": "Competitive programming platform — practice problems, track progress, and compete globally",
   "private": true,
   "scripts": {
     "prepr": "npm run lint:fix && npm run format",
@@ -12,6 +13,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.90.21",
     "class-variance-authority": "^0.7.1",

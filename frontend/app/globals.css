@@ -45,6 +45,16 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  /* DexCode design tokens */
+  --color-dex-bg: var(--dex-bg);
+  --color-dex-surface: var(--dex-surface);
+  --color-dex-surface-elevated: var(--dex-surface-elevated);
+  --color-dex-border: var(--dex-border);
+  --color-dex-accent: var(--dex-accent);
+  --color-dex-accent-hover: var(--dex-accent-hover);
+  --color-dex-text: var(--dex-text);
+  --color-dex-text-secondary: var(--dex-text-secondary);
+  --color-dex-muted: var(--dex-muted);
 }
 
 :root {
@@ -80,10 +90,21 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* DexCode – light mode */
+  --dex-bg: oklch(1 0 0);
+  --dex-surface: oklch(0.985 0 0);
+  --dex-surface-elevated: oklch(1 0 0);
+  --dex-border: oklch(0.922 0 0);
+  --dex-accent: oklch(0.577 0.245 27.325);
+  --dex-accent-hover: oklch(0.521 0.243 27.5);
+  --dex-text: oklch(0.145 0 0);
+  --dex-text-secondary: oklch(0.455 0 0);
+  --dex-muted: oklch(0.522 0 0);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  /* Override shadcn dark bg → DexCode dark */
+  --background: oklch(0.103 0.013 241);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -114,6 +135,16 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  /* DexCode – dark mode */
+  --dex-bg: oklch(0.103 0.013 241);
+  --dex-surface: oklch(0.154 0.012 252);
+  --dex-surface-elevated: oklch(0.135 0.018 264);
+  --dex-border: oklch(0.218 0.012 252);
+  --dex-accent: oklch(0.577 0.245 27.325);
+  --dex-accent-hover: oklch(0.521 0.243 27.5);
+  --dex-text: oklch(0.922 0 0);
+  --dex-text-secondary: oklch(0.669 0 0);
+  --dex-muted: oklch(0.522 0 0);
 }
 
 @layer base {
@@ -122,5 +153,8 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  html {
+    scroll-behavior: smooth;
   }
 }
