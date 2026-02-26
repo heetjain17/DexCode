@@ -97,7 +97,7 @@ function ProblemCard({ problem }: { problem: Problem }) {
 
   return (
     <Link
-      href={`/problems/${problem.id}`}
+      href={`/problems/${problem.slug}`}
       className={cn(
         "group flex flex-col rounded-xl border border-dex-border bg-dex-surface p-5",
         "transition-all duration-150 ease-out",

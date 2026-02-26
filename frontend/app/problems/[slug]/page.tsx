@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import api, { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import Navbar from "@/components/landing/navbar";
 
 // --- Types ---
 
@@ -172,7 +171,7 @@ function ResultRow({ result }: { result: ExecutionResult }) {
 // --- Main Page ---
 
 export default function ProblemDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
 
   // Problem data
   const {
@@ -180,8 +179,8 @@ export default function ProblemDetailPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["problem", id],
-    queryFn: () => api<Problem>(`/problem/${id}`).then((r) => r.data),
+    queryKey: ["problem", slug],
+    queryFn: () => api<Problem>(`/problem/${slug}`).then((r) => r.data),
     staleTime: 5 * 60_000,
   });
 
@@ -227,7 +226,7 @@ export default function ProblemDetailPage() {
         body: JSON.stringify({
           source_code: code[selectedLang],
           language: selectedLang,
-          problemId: id,
+          problemId: problem?.id,
         }),
       }).then((r) => r.data),
     onSuccess: (data) => {
@@ -248,7 +247,7 @@ export default function ProblemDetailPage() {
         body: JSON.stringify({
           source_code: code[selectedLang],
           language: selectedLang,
-          problemId: id,
+          problemId: problem?.id,
         }),
       }).then((r) => r.data),
     onSuccess: (data) => {
@@ -269,37 +268,29 @@ export default function ProblemDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col bg-dex-bg">
-        <Navbar />
-        <div className="flex flex-1 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-dex-accent" />
-        </div>
+      <div className="flex flex-1 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-dex-accent" />
       </div>
     );
   }
 
   if (isError || !problem) {
     return (
-      <div className="flex min-h-screen flex-col bg-dex-bg">
-        <Navbar />
-        <div className="flex flex-1 items-center justify-center text-dex-muted">
-          Problem not found.
-        </div>
+      <div className="flex flex-1 items-center justify-center text-dex-muted">
+        Problem not found.
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-dex-bg">
-      <Navbar />
-
+    <div className="flex flex-1 flex-col overflow-hidden">
       {/* Top bar */}
       <div className="flex items-center gap-3 border-b border-dex-border px-4 py-2 text-sm">
         <span className="font-semibold text-dex-text">{problem.title}</span>
         <DifficultyBadge difficulty={problem.difficulty} />
         {problem.isSolved && <CheckCircle2 className="h-4 w-4 text-green-400" />}
         <div className="ml-auto flex items-center gap-1.5 text-xs text-dex-muted">
-          <span>{problem.stats.acceptanceRate.toFixed(1)}% acceptance</span>
+          <span>{Number(problem.stats.acceptanceRate).toFixed(1)}% acceptance</span>
           <span>·</span>
           <span>{problem.stats.totalSubmissions.toLocaleString()} submissions</span>
         </div>

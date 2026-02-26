@@ -286,37 +286,42 @@ export async function getAllProblemsService(userId: string | undefined, filters:
   };
 }
 
-// Get by ID (full detail)
-export async function getProblemService(id: string, userId?: string) {
-  const [problem, userSubmissionCount] = await Promise.all([
-    db.query.problems.findFirst({
-      where: eq(problems.id, id),
-      with: {
-        examples: { orderBy: asc(examples.order) },
-        constraints: { orderBy: asc(constraints.order) },
-        hints: { orderBy: asc(hints.order) },
-        tags: { with: { tag: { columns: { id: true, name: true, slug: true } } } },
-        companies: { with: { company: { columns: { id: true, name: true, slug: true } } } },
-        codeTemplates: true,
-      },
-    }),
+// Get by ID or slug (full detail)
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function getProblemService(idOrSlug: string, userId?: string) {
+  const isUuid = UUID_RE.test(idOrSlug);
+  const problem = await db.query.problems.findFirst({
+    where: isUuid ? eq(problems.id, idOrSlug) : eq(problems.slug, idOrSlug),
+    with: {
+      examples: { orderBy: asc(examples.order) },
+      constraints: { orderBy: asc(constraints.order) },
+      hints: { orderBy: asc(hints.order) },
+      tags: { with: { tag: { columns: { id: true, name: true, slug: true } } } },
+      companies: { with: { company: { columns: { id: true, name: true, slug: true } } } },
+      codeTemplates: true,
+    },
+  });
+
+  if (!problem) throw new ApiError(404, 'Problem not found');
+
+  const [userSubmissionCount, isSolved] = await Promise.all([
     userId
       ? db
           .select({ count: sql<number>`cast(count(*) as int)` })
           .from(submissions)
-          .where(and(eq(submissions.problemId, id), eq(submissions.userId, userId)))
+          .where(and(eq(submissions.problemId, problem.id), eq(submissions.userId, userId)))
           .then(([r]) => r.count)
       : Promise.resolve(0),
+    userId
+      ? db.query.problemSolved
+          .findFirst({
+            where: and(eq(problemSolved.problemId, problem.id), eq(problemSolved.userId, userId)),
+            columns: { id: true },
+          })
+          .then(Boolean)
+      : Promise.resolve(false),
   ]);
-
-  if (!problem) throw new ApiError(404, 'Problem not found');
-
-  const isSolved = userId
-    ? !!(await db.query.problemSolved.findFirst({
-        where: and(eq(problemSolved.problemId, id), eq(problemSolved.userId, userId)),
-        columns: { id: true },
-      }))
-    : false;
 
   const templatesMap = problem.codeTemplates.reduce(
     (acc, t) => {

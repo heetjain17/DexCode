@@ -89,7 +89,7 @@ export const problemQuerySchema = z.object({
 });
 
 export const problemIdParamSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().min(1),
 });
 
 export type CreateProblemDTO = z.infer<typeof createProblemSchema>;
