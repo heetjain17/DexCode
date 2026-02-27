@@ -3,8 +3,9 @@ const COMPANIES = [
   { name: "Amazon", className: "font-bold tracking-tight" },
   { name: "Microsoft", className: "font-semibold tracking-wide" },
   { name: "Meta", className: "font-black" },
-  { name: "Netflix", className: "font-black tracking-tighter" },
-  { name: "Stripe", className: "font-semibold" },
+  { name: "Netflix", className: "font-black tracking-tighter " },
+  { name: "OnlyFans", className: "font-semibold tracking-tight" },
+  // { name: "Amazon", className: "font-bold tracking-tight" },
 ];
 
 export default function TrustedBy() {

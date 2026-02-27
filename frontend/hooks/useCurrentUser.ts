@@ -16,7 +16,14 @@ export interface CurrentUser {
     twitter: string | null;
     linkedin: string | null;
   };
-  totalSolved: number;
+  problemsSolved: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  currentStreak: number;
+  longestStreak: number;
+  totalSubmissions: number;
+  acceptedSubmissions: number;
   createdAt: string;
 }
 
