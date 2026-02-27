@@ -157,4 +157,28 @@
   html {
     scroll-behavior: smooth;
   }
+  /* Lucide icons: bump stroke-width from 1.5 → 2 for a crisper look */
+  svg.lucide {
+    stroke-width: 2;
+  }
+}
+
+@layer utilities {
+  .dex-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--dex-border) transparent;
+  }
+  .dex-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .dex-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dex-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--dex-border);
+    border-radius: 9999px;
+  }
+  .dex-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--dex-muted);
+  }
 }

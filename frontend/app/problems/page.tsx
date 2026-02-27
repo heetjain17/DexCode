@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
+import Navbar from "@/components/landing/navbar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -304,7 +305,9 @@ function ProblemsPageContent() {
   const hasActiveFilters = !!(search || difficulty || tag);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 md:px-8 lg:px-12">
+    <>
+      <Navbar />
+      <div className="mx-auto max-w-7xl px-4 pb-10 pt-[88px] md:px-8 lg:px-12">
       {/* ── Header ── */}
       <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -408,6 +411,7 @@ function ProblemsPageContent() {
         </div>
       )}
     </div>
+    </>
   );
 }
 
