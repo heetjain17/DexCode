@@ -41,17 +41,26 @@ export const submitBatch = async (
   submissions: Judge0Submission[]
 ): Promise<{ token: string }[]> => {
   const { data } = await axios.post(
-    `${judge0Config.baseUrl}/submissions/batch?base64_encoded=false`,
+    `${judge0Config.baseUrl}/submissions/batch?base64_encoded=true`,
     {
       submissions: submissions.map((s) => ({
-        source_code: s.source_code,
+        source_code: Buffer.from(s.source_code).toString('base64'),
         language_id: s.language_id,
-        stdin: s.stdin,
+        stdin: s.stdin ? Buffer.from(s.stdin).toString('base64') : null,
       })),
     },
     { headers: getHeaders() }
   );
   return data;
+};
+
+const decodeField = (value: string | null): string | null => {
+  if (!value) return value;
+  try {
+    return Buffer.from(value, 'base64').toString('utf-8');
+  } catch {
+    return value;
+  }
 };
 
 // fetch results of submissions
@@ -63,11 +72,17 @@ export const pollBatchResults = async (tokens: string[]): Promise<Judge0Result[]
     attempts++;
 
     const { data } = await axios.get(
-      `${judge0Config.baseUrl}/submissions/batch?tokens=${tokenStr}&base64_encoded=false&fields=*`,
+      `${judge0Config.baseUrl}/submissions/batch?tokens=${tokenStr}&base64_encoded=true&fields=*`,
       { headers: getHeaders() }
     );
 
-    const results: Judge0Result[] = data.submissions;
+    const results: Judge0Result[] = (data.submissions as Judge0Result[]).map((r) => ({
+      ...r,
+      stdout: decodeField(r.stdout),
+      stderr: decodeField(r.stderr),
+      compile_output: decodeField(r.compile_output),
+    }));
+
     const isDone = results.every((r) => r.status.id > 2);
 
     if (isDone) return results;
