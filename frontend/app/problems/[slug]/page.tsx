@@ -54,6 +54,7 @@ export default function ProblemDetailPage() {
   const [runResult, setRunResult] = useState<ExecutionResponse | null>(null);
   const [submitResult, setSubmitResult] = useState<ExecutionResponse | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
+  const [lastSubmissionId, setLastSubmissionId] = useState<string | null>(null);
 
   // ── Stopwatch ──
   const [elapsed, setElapsed] = useState(0);
@@ -104,6 +105,8 @@ export default function ProblemDetailPage() {
       setSubmitResult(normalizeSubmission(data));
       setRunResult(null);
       setRunError(null);
+      setLastSubmissionId(data.submission.id);
+      setActiveLeftTab("submissions");
       // Invalidate submissions list so the new submission appears
       queryClient.invalidateQueries({ queryKey: ["submissions", problem?.id] });
     },
@@ -150,6 +153,7 @@ export default function ProblemDetailPage() {
             problem={problem}
             activeTab={activeLeftTab}
             onTabChange={setActiveLeftTab}
+            openSubmissionId={lastSubmissionId}
           />
         </Panel>
 

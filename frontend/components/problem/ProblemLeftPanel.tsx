@@ -39,9 +39,10 @@ interface ProblemLeftPanelProps {
   problem: Problem;
   activeTab: LeftTab;
   onTabChange: (tab: LeftTab) => void;
+  openSubmissionId?: string | null;
 }
 
-export function ProblemLeftPanel({ problem, activeTab, onTabChange }: ProblemLeftPanelProps) {
+export function ProblemLeftPanel({ problem, activeTab, onTabChange, openSubmissionId }: ProblemLeftPanelProps) {
   const diffConf = DIFFICULTY_CONFIG[problem.difficulty];
 
   return (
@@ -69,7 +70,7 @@ export function ProblemLeftPanel({ problem, activeTab, onTabChange }: ProblemLef
       {/* Submissions tab fills the panel (no extra padding) */}
       {activeTab === "submissions" && (
         <div className="flex-1 overflow-hidden">
-          <SubmissionsPanel problemId={problem.id} />
+          <SubmissionsPanel problemId={problem.id} openSubmissionId={openSubmissionId} />
         </div>
       )}
 

@@ -40,7 +40,7 @@ export interface ExecutionResponse {
 
 // Submit returns a richer SubmissionAnalysis shape — normalized to ExecutionResponse
 export interface SubmissionAnalysis {
-  submission: { status: string };
+  submission: { id: string; status: string };
   testResults: {
     testCase: number;
     passed: boolean;

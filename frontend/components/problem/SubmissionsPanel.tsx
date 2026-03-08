@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircle2,
@@ -307,8 +307,18 @@ function SubmissionDetailView({
 
 // ─── SubmissionsPanel ─────────────────────────────────────────────────────────
 
-export function SubmissionsPanel({ problemId }: { problemId: string }) {
+export function SubmissionsPanel({
+  problemId,
+  openSubmissionId,
+}: {
+  problemId: string;
+  openSubmissionId?: string | null;
+}) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (openSubmissionId) setSelectedId(openSubmissionId);
+  }, [openSubmissionId]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["submissions", problemId],
