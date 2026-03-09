@@ -28,16 +28,18 @@ import {
 } from '@/validators/auth.schema';
 import { getEnv } from '@/utils/env';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const accessTokenOptions: CookieOptions = {
   httpOnly: true,
-  sameSite: 'strict',
-  secure: process.env.NODE_ENV === 'production',
+  sameSite: isProd ? 'none' : 'strict',
+  secure: isProd,
   maxAge: 15 * 60 * 1000,
 };
 const refreshTokenOptions: CookieOptions = {
   httpOnly: true,
-  sameSite: 'strict',
-  secure: process.env.NODE_ENV === 'production',
+  sameSite: isProd ? 'none' : 'strict',
+  secure: isProd,
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
