@@ -18,7 +18,7 @@ import ratingRoutes from './routes/rating.routes';
 import discussionRoutes from './routes/discussion.routes';
 
 const PORT = process.env.PORT || 8080;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
 
 const app = express();
 
