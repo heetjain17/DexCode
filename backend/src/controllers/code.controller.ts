@@ -6,7 +6,7 @@ import { asyncHandler } from '@/utils/asyncHandler';
 import { db } from '@/libs/db';
 import { problems } from '@/db/schema';
 import { RunCodeDTO } from '@/validators/code.schema';
-import { getLanguageId } from '@/services/judge0.services';
+import { getLanguageId } from '@/services/judge0.service';
 
 export const runCodePreview = asyncHandler(async (req, res) => {
   const body = req.validated!.body as RunCodeDTO;

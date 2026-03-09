@@ -16,7 +16,7 @@ import {
 } from '@/db/schema';
 import { ApiError } from '@/utils/ApiError';
 import { executeCodeAgainstTestcases } from '@/services/codeExecution.service';
-import { getLanguageId } from '@/services/judge0.services';
+import { getLanguageId } from '@/services/judge0.service';
 import type {
   CreateProblemDTO,
   ProblemQueryDTO,

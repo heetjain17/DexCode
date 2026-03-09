@@ -9,7 +9,7 @@ import {
   SubmissionSummary,
 } from '@/validators/submission.schema';
 import type { ExecutionResponse } from '@/validators/code.schema';
-import type { LanguageKey } from '@/services/judge0.services';
+import type { LanguageKey } from '@/services/judge0.service';
 
 export type TestCaseStatusValue = 'PASSED' | 'FAILED' | 'ERROR';
 

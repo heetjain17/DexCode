@@ -1,6 +1,6 @@
 import { ApiError } from '@/utils/ApiError';
 import { ExecutionResponse, Judge0Result } from '@/validators/code.schema';
-import { pollBatchResults, submitBatch } from './judge0.services';
+import { pollBatchResults, submitBatch } from './judge0.service';
 
 interface Testcase {
   input: string;

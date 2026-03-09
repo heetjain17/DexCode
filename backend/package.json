@@ -39,7 +39,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "db:seed-beta": "tsx src/db/seed-beta.ts"
   },
   "dependencies": {
     "axios": "^1.9.0",

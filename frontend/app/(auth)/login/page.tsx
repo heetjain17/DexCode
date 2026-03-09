@@ -163,11 +163,11 @@ function LoginPageContent() {
         </form>
       </div>
 
-      <p className="mt-6 text-center text-sm text-dex-muted">
-        Don&apos;t have an account?{" "}
-        <Link href="/register" className="font-medium text-dex-accent hover:underline">
-          Create one
-        </Link>
+      <p className="mt-6 text-center text-xs text-dex-muted">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-amber-400">
+          BETA
+        </span>{" "}
+        Private beta — registration is closed
       </p>
     </div>
   );

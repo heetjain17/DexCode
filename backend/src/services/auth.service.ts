@@ -47,6 +47,11 @@ const generateUniqueUsername = async (base: string) => {
 };
 
 export const registerService = async ({ email, username, password }: RegisterDto) => {
+  // Beta mode: block all new registrations
+  if (process.env.BETA_MODE === 'true') {
+    throw new ApiError(403, 'Registration is disabled during beta. Please use pre-assigned credentials.');
+  }
+
   const existingUser = await db.query.users.findFirst({
     where: eq(users.email, email),
   });
@@ -286,6 +291,11 @@ export const googleOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
   });
 
   if (!user) {
+    // Beta mode: block new account creation via OAuth
+    if (process.env.BETA_MODE === 'true') {
+      throw new ApiError(403, 'New account registration is disabled during beta. Only pre-assigned accounts can log in.');
+    }
+
     const username = await generateUniqueUsername(userInfo.email.split('@')[0]);
 
     user = await db.transaction(async (tx) => {
@@ -346,6 +356,11 @@ export const githubOAuthCallbackService = async ({ code }: oAuthSchemaDTO) => {
   });
 
   if (!user) {
+    // Beta mode: block new account creation via OAuth
+    if (process.env.BETA_MODE === 'true') {
+      throw new ApiError(403, 'New account registration is disabled during beta. Only pre-assigned accounts can log in.');
+    }
+
     const username = await generateUniqueUsername(email.split('@')[0]);
 
     user = await db.transaction(async (tx) => {
