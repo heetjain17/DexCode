@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: dexcode-backend
+    runtime: node
+    region: singapore
+    branch: dev+beta
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npx tsx src/index.ts
+    healthCheckPath: /health
+    plan: free
