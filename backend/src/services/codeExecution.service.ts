@@ -9,10 +9,12 @@ interface Testcase {
 
 function injectTemplate(template: string | null | undefined, sourceCode: string): string {
   if (!template) return sourceCode;
-  if (!template.includes('[USER_CODE_HERE]')) {
+  // Match [USER_CODE_HERE] with optional comment prefix (// or #) and surrounding whitespace
+  const marker = /^[ \t]*(\/\/|#)?\s*\[USER_CODE_HERE\][ \t]*/m;
+  if (!marker.test(template)) {
     throw new ApiError(500, 'Code template is missing the [USER_CODE_HERE] marker');
   }
-  return template.replace('[USER_CODE_HERE]', sourceCode);
+  return template.replace(marker, sourceCode);
 }
 
 export const executeCodeAgainstTestcases = async (

@@ -1159,13 +1159,362 @@ Get a single discussion with all comments. Authenticated users also receive thei
 
 ## Submissions — `/api/v1/submission`
 
-> Submission history endpoints are not yet implemented.
+All routes require authentication.
+
+### GET `/`
+
+List the authenticated user's submissions with optional problem filtering and pagination.
+
+**Query Parameters**
+
+| Param       | Type   | Required | Default | Notes                 |
+| ----------- | ------ | -------- | ------- | --------------------- |
+| `problemId` | UUID   | No       | —       | Filter by one problem |
+| `page`      | number | No       | `1`     | Min `1`               |
+| `limit`     | number | No       | `20`    | Min `1`, max `100`    |
+
+**Response `200`**
+
+```json
+{
+  "statusCode": 200,
+  "message": "Submissions retrieved",
+  "data": {
+    "submissions": [
+      {
+        "id": "uuid",
+        "status": "ACCEPTED",
+        "verdict": "All test cases passed",
+        "language": "PYTHON",
+        "executionTime": 42,
+        "memoryUsed": 9216,
+        "createdAt": "2025-01-01T00:00:00.000Z",
+        "problem": {
+          "id": "uuid",
+          "title": "Two Sum",
+          "difficulty": "EASY"
+        }
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 57
+    }
+  }
+}
+```
+
+---
+
+### GET `/:id`
+
+Get detailed analysis for one submission owned by the authenticated user.
+
+**Params**
+
+- `id` — Submission ID
+
+**Response `200`**
+
+```json
+{
+  "statusCode": 200,
+  "message": "Submission retrieved",
+  "data": {
+    "submission": {
+      "id": "uuid",
+      "status": "WRONG_ANSWER",
+      "verdict": "Some test cases failed",
+      "language": "PYTHON",
+      "executionTime": 51,
+      "memoryUsed": 10240,
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    "problem": {
+      "id": "uuid",
+      "title": "Two Sum",
+      "difficulty": "EASY"
+    },
+    "summary": {
+      "totalTests": 10,
+      "passed": 7,
+      "failed": 3,
+      "passRate": "70.00%",
+      "avgExecutionTimeMs": 38,
+      "peakMemoryBytes": 10240
+    },
+    "testResults": [
+      {
+        "testCase": 1,
+        "status": "PASSED",
+        "passed": true,
+        "input": "[2,7,11,15]\\n9",
+        "output": "[0,1]",
+        "expected": "[0,1]",
+        "executionTimeMs": 31,
+        "memoryBytes": 8192,
+        "stderr": null,
+        "compileOutput": null
+      }
+    ]
+  }
+}
+```
+
+**Errors**
+
+| Status | Reason               |
+| ------ | -------------------- |
+| `403`  | Access denied        |
+| `404`  | Submission not found |
 
 ---
 
 ## Playlists — `/api/v1/playlist`
 
-> Playlist endpoints are not yet implemented.
+### POST `/`
+
+**Auth required.** Create a playlist.
+
+**Body**
+
+```json
+{
+  "name": "Blind 75",
+  "description": "Core interview set",
+  "isPublic": false
+}
+```
+
+**Fields**
+
+| Field         | Type    | Required | Notes               |
+| ------------- | ------- | -------- | ------------------- |
+| `name`        | string  | Yes      | 1–100 chars         |
+| `description` | string  | No       |                     |
+| `isPublic`    | boolean | No       | Defaults to `false` |
+
+**Response `201`**
+
+```json
+{
+  "statusCode": 201,
+  "message": "Playlist created",
+  "data": {
+    "id": "uuid",
+    "slug": "blind-75"
+  }
+}
+```
+
+---
+
+### GET `/`
+
+**Auth required.** List playlists owned by the authenticated user.
+
+**Response `200`**
+
+```json
+{
+  "statusCode": 200,
+  "message": "Playlists retrieved",
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Blind 75",
+      "slug": "blind-75",
+      "description": "Core interview set",
+      "isPublic": false,
+      "problemCount": 12,
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### GET `/:id`
+
+Get playlist detail by ID. Public playlists are visible to everyone; private playlists are only visible to the owner.
+
+**Params**
+
+- `id` — UUID of the playlist
+
+**Response `200`**
+
+```json
+{
+  "statusCode": 200,
+  "message": "Playlist retrieved",
+  "data": {
+    "id": "uuid",
+    "name": "Blind 75",
+    "slug": "blind-75",
+    "description": "Core interview set",
+    "isPublic": true,
+    "problemCount": 2,
+    "isOwner": false,
+    "problems": [
+      {
+        "order": 0,
+        "id": "uuid",
+        "slug": "two-sum",
+        "title": "Two Sum",
+        "difficulty": "EASY",
+        "acceptanceRate": "49.32",
+        "isSolved": true
+      }
+    ]
+  }
+}
+```
+
+**Errors**
+
+| Status | Reason             |
+| ------ | ------------------ |
+| `403`  | Forbidden          |
+| `404`  | Playlist not found |
+
+---
+
+### PUT `/:id`
+
+**Auth required.** Update an owned playlist.
+
+**Params**
+
+- `id` — UUID of the playlist
+
+**Body** (all fields optional)
+
+```json
+{
+  "name": "Blind 75 Updated",
+  "description": "Updated description",
+  "isPublic": true
+}
+```
+
+**Response `200`**
+
+```json
+{
+  "statusCode": 200,
+  "message": "Playlist updated",
+  "data": {
+    "id": "uuid",
+    "slug": "blind-75-updated"
+  }
+}
+```
+
+**Errors**
+
+| Status | Reason             |
+| ------ | ------------------ |
+| `403`  | Forbidden          |
+| `404`  | Playlist not found |
+
+---
+
+### DELETE `/:id`
+
+**Auth required.** Delete an owned playlist.
+
+**Params**
+
+- `id` — UUID of the playlist
+
+**Response `200`**
+
+```json
+{
+  "statusCode": 200,
+  "message": "Playlist deleted"
+}
+```
+
+**Errors**
+
+| Status | Reason             |
+| ------ | ------------------ |
+| `403`  | Forbidden          |
+| `404`  | Playlist not found |
+
+---
+
+### POST `/:id/problem`
+
+**Auth required.** Add one or more problems to an owned playlist.
+
+**Params**
+
+- `id` — UUID of the playlist
+
+**Body**
+
+```json
+{
+  "problemIds": ["uuid-1", "uuid-2"]
+}
+```
+
+> Duplicate `(playlistId, problemId)` pairs are ignored.
+
+**Response `200`**
+
+```json
+{
+  "statusCode": 200,
+  "message": "Problems added to playlist",
+  "data": {
+    "problemCount": 14
+  }
+}
+```
+
+**Errors**
+
+| Status | Reason                              |
+| ------ | ----------------------------------- |
+| `400`  | One or more problem IDs are invalid |
+| `403`  | Forbidden                           |
+| `404`  | Playlist not found                  |
+
+---
+
+### DELETE `/:id/problem/:problemId`
+
+**Auth required.** Remove a problem from an owned playlist.
+
+**Params**
+
+- `id` — UUID of the playlist
+- `problemId` — UUID of the problem
+
+**Response `200`**
+
+```json
+{
+  "statusCode": 200,
+  "message": "Problem removed from playlist",
+  "data": {
+    "problemCount": 13
+  }
+}
+```
+
+**Errors**
+
+| Status | Reason             |
+| ------ | ------------------ |
+| `403`  | Forbidden          |
+| `404`  | Playlist not found |
 
 ---
 
